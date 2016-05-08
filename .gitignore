@@ -1,0 +1,9 @@
+*.pyc
+*.ropeproject
+*.swp
+*.swo
+.sass-cache/
+*/node_modules/
+*/node_modules/*
+tmp/*
+settings.cfg
