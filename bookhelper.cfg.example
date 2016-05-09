@@ -1,0 +1,10 @@
+[default]
+api_url=handbuch.io
+export="all"
+user=ABot
+password=APassword
+loglevel=DEBUG
+dc_symbol=ADataCiteSymbol
+dc_password=ADataCitePassword
+dc_prefix=ADataCitePrefix
+
