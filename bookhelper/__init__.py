@@ -1,8 +1,8 @@
 '''bookhelper
 
-shared classes and functions (for different commands)
+shared classes and functions
 '''
-import sys
+
 import os
 import logging
 import re
@@ -11,9 +11,10 @@ from bs4 import BeautifulSoup
 
 EXPORTKEYS = ['pdf', 'print', 'odt']
 
+
 def get_siteurl(site):
     '''mwclient.Site does not have a "full url" attribute.
-        But we need this for expanding relativ paths.'''
+        But we need one for expanding relative paths.'''
     scheme = 'https'
     host = site.host
     if isinstance(host, (list, tuple)):
@@ -21,8 +22,8 @@ def get_siteurl(site):
     return '{scheme}://{host}'.format(scheme=scheme, host=host)
 
 
-# decorator for methods
 def on_no_errors(meth):
+    '''Decorator for methods in classes with an error attribute.'''
     def inner(*args):
         if not args[0].errors:
             return meth(*args)
@@ -31,7 +32,7 @@ def on_no_errors(meth):
 
 class StablePage(object):
     '''One revesion of every (book)-page should be marked as stable.
-       And that revission should be used for generating documents/versions.
+       And that revission is to be be used for generating documents/versions.
        However, it's a little bit complicate to receive the stable revision
        via the api. This is what we do here'''
 
@@ -136,9 +137,7 @@ class Book(object):
             title(str): Booktitle
         '''
         self.errors = []
-        #self.site = site
         self.version = version
-        #sys.exit(self.version)
         self.site_url = get_siteurl(site)
         if self.version != "live":
             title = "/".join((title, self.version))
@@ -182,8 +181,8 @@ class Book(object):
         i = {}
         txt = self.book_page.text
         self.template_startpos = txt.find('{{')
-        self.template_endpos = txt.find('}}') +2
-        inner = txt[self.template_startpos + 2: self.template_endpos -2]
+        self.template_endpos = txt.find('}}') + 2
+        inner = txt[self.template_startpos + 2: self.template_endpos - 2]
         inner = inner[inner.find('|'):]
         if not inner:
             self.errors.append(
@@ -198,5 +197,4 @@ class Book(object):
                 i[k.strip()] = v.strip()
             if next_ < 0:
                 break
-        #sys.exit("NFO "+str( i))
         return i

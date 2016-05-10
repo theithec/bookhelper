@@ -5,7 +5,7 @@ import argparse
 import json
 
 from bookhelper import EXPORTKEYS
-from  bookhelper.starter import Starter
+from bookhelper.starter import Starter
 
 
 def merge_config(args):
@@ -22,7 +22,7 @@ def merge_config(args):
             v = v.replace('"', '')
             s = v.split(' ')
             if len(s) > 1:
-                 v = s
+                v = s
             elif k == 'export':
                 v = [v]
 
@@ -60,7 +60,7 @@ def main():
     parser.add_argument(
         "-c", "--conf",
         help="Path to config file", default="")
-    #parser.add_argument(
+    # parser.add_argument(
     #    "--tmp-path",
     #    help="path to a tmp dir for file creation and celerydb")
 
@@ -72,7 +72,6 @@ def main():
          'default': 'live',
          }
     )
-
 
     parser_publish = subparsers.add_parser('publish', help='publish --help')
     parser_publish.add_argument(*book_args_kwargs[0], **book_args_kwargs[1])
@@ -117,9 +116,6 @@ def main():
     result = s.start()
     errors += s.errors
 
-    #for err in errors:
-        #  print(err, file=sys.stderr) # then we get the logging too
-    #    print(err)
     if not result:
         result = int(bool(errors))
 

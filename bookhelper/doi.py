@@ -4,6 +4,7 @@ from datacite.errors import DataCiteServerError
 
 
 class BookDoi(object):
+
     def __init__(self, conf):
         self.errors = []
         # the book is always generated from the "live" version, so we need
@@ -32,10 +33,10 @@ class BookDoi(object):
         self.client = DataCiteMDSClient(**self.datacite_kwargs)
         try:
             doc = self.client.metadata_get(self.doi)
-            self.errors.append('Doi "%s" already exists' % doi)
+            self.errors.append('Doi "%s" already exists' % self.doi)
         except DataCiteServerError as e:
-            if e.error_code !=  404:
-               self.errors.append(
+            if e.error_code != 404:
+                self.errors.append(
                     'Not the expected result from MDS while validation: %s' % e)
 
     def _book_metadata(self):
@@ -60,7 +61,7 @@ class BookDoi(object):
         for title in ['AUTOREN', 'KONTRIBUTOREN', ]:
             namesstr = self.book.info.get(title, "")
             dicts = [
-                {'CreatorName': name.strip() }
+                {'CreatorName': name.strip()}
                 for name in namesstr.split(',')
                 if name.strip()
             ]

@@ -4,15 +4,17 @@ from bookhelper import on_no_errors, Book
 
 class Action(object):
     is_book_action = False
+
     def __init__(self, conf):
         self.errors = []
         self.conf = conf
+
 
 class BookAction(Action):
     is_book_action = True
 
     def build_book(self, site):
-        self.book = Book(site,self.conf.book, self.conf.version)
+        self.book = Book(site, self.conf.book, self.conf.version)
 
     def validate(self, site):
         self.login(site)
@@ -20,11 +22,10 @@ class BookAction(Action):
             self.build_book(site)
             self.errors += self.book.errors
 
-
     @on_no_errors
     def login(self, site):
         try:
-           site.login(self.conf.user, self.conf.password)
+            site.login(self.conf.user, self.conf.password)
         except Exception as e:
             self.errors.append('Login failed ' + str(e))
 
@@ -35,7 +36,7 @@ class BookAction(Action):
         else:
             site_arg = self.conf.api_url
 
-        #@todo handle exceptions
+        # @todo handle exceptions
         site = mwclient.Site(site_arg)
 
         return site
