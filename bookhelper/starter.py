@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from bookhelper import on_no_errors
 from bookhelper.cmds import publish, versionizer, status
 from bookhelper.celery import async_action
@@ -6,9 +7,9 @@ from bookhelper.celery import async_action
 class Starter(object):
 
     command_mapping = {
-        "publish": publish.PublishAction,
-        "versionize": versionizer.VersionizeAction,
-        "status": status.StatusAction
+        u"publish": publish.PublishAction,
+        u"versionize": versionizer.VersionizeAction,
+        u"status": status.StatusAction
     }
 
     def __init__(self, conf):
@@ -22,7 +23,7 @@ class Starter(object):
         if not self.errors:
             return self.run_cmd()
         else:
-            return "FAILED"
+            return u"FAILED"
 
     @on_no_errors
     def get_action(self):

@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import mwclient
 from bookhelper import on_no_errors, Book
 
@@ -26,13 +27,13 @@ class BookAction(Action):
     def login(self, site):
         try:
             site.login(self.conf.user, self.conf.password)
-        except Exception as e:
-            self.errors.append('Login failed ' + str(e))
+        except Exception, e:
+            self.errors.append(u'Login failed ' + unicode(e))
 
     def get_site(self):
         site_arg = None
         if self.conf.no_https:
-            site_arg = ("http", self.conf.api_url, )
+            site_arg = (u"http", self.conf.api_url, )
         else:
             site_arg = self.conf.api_url
 
