@@ -76,4 +76,5 @@ class PublishAction(BookAction):
             u'src': get_book_src(self.book),
         }
         self.errors += book_exports(self.conf.export, kwargs)
+        #sys.exit("ERR2 %s " %  self.errors)
         return u"FAILED" if self.errors else u"SUCCESS"

@@ -20,7 +20,10 @@ class Starter(object):
     def start(self):
         self.action.validate()
         self.errors += self.action.errors
+        #print("ERR1", self.errors)
+        #import sys; sys.exit()
         if not self.errors:
+
             return self.run_cmd()
         else:
             return u"FAILED"
@@ -35,4 +38,6 @@ class Starter(object):
             task = async_action.delay(self.action)
             return task.id
         else:
-            return self.action.run()
+            res = self.action.run()
+            self.errors += self.action.errors
+            return res

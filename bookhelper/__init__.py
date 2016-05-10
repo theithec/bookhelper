@@ -102,7 +102,7 @@ class BaseBookTocItem(object):
 
 
 class LiveBookTocItem(BaseBookTocItem):
-    item_re = re.compile(ur'((?:#|\*)+).*\[\[(.*)\]\]')
+    item_re = re.compile(r'((?:#|\*)+).*\[\[(.*)\]\]')
 
     def __init__(self, site, book, line):
         super(LiveBookTocItem, self).__init__(site, book, line)
@@ -117,8 +117,8 @@ class LiveBookTocItem(BaseBookTocItem):
 
 
 class VersionizedBookTocItem(BaseBookTocItem):
-    item_re = re.compile(ur'((?:#|\*)+).*\[(.*)\]')
-    title_re = re.compile(ur'.*title=(.*?)&')
+    item_re = re.compile(r'((?:#|\*)+).*\[(.*)\]')
+    title_re = re.compile(r'.*title=(.*?)&')
 
     def _title(self):
         return re.match(self.title_re, self.target).groups()[0]

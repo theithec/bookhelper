@@ -16,9 +16,9 @@ def merge_config(args):
     '''
     vargs = vars(args)
     config = ConfigParser.ConfigParser()
-    config.read(args.conf)
-    d = config[u'default']
-    for k, v in d.items():
+    config.readfp(open(args.conf))
+    d = config.items('default')
+    for k, v in d:
         if vargs.get(k, None) is None:
             v = v.replace(u'"', u'')
             s = v.split(u' ')

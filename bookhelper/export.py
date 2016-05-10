@@ -103,7 +103,7 @@ class PandocExport(Export):
                 tag[u'src'] = u"".join((site_url, c),)
 
         with open(os.path.join(self.tmppath, u"src.html"), u"w") as f:
-            f.write(unicode(soup.prettify().encode(u"utf-8")))
+            f.write(soup.prettify()) # .encode(u"utf-8"))
 
         return soup
 
@@ -135,24 +135,24 @@ class PandocExport(Export):
 
 
 class PDFExport(PandocExport):
-    outformat = u"pdf"
+    outformat = "pdf"
 
     def get_pandoc_params(self):
         args, kwargs = super(PDFExport, self).get_pandoc_params()
-        kwargs[u'extra_args'] = [
-            u'--latex-engine=xelatex',
-            u'--chapters',
-            u'--verbose',
-            u'--standalone',
-            u'--toc',
-            u'--template=%s/template.latex' % dirname(abspath(__file__)),
+        kwargs['extra_args'] = [
+            '--latex-engine=xelatex',
+            '--chapters',
+            '--verbose',
+            '--standalone',
+            '--toc',
+            '--template=%s/template.latex' % dirname(abspath(__file__)),
             # '-M', 'documentclass=book',
-            u'-M', u'author="Tim Heithecker"',
-            u'-M', u'include-before="Wichtige Hinweise"',
-            u'-M', u'subtitle="DIe Beschreibung"',
-            u'-M', u'lang="german"',
-            u'-M', u'mainlang="german"',
-            u'-M', u'title="%s"' % self.friendly_title
+            '-M', u'author="Tim Heithecker"',
+            '-M', u'include-before="Wichtige Hinweise"',
+            '-M', u'subtitle="Die Beschreibung"',
+            '-M', u'lang="german"',
+            '-M', u'mainlang="german"',
+            '-M', u'title="%s"' % self.friendly_title
         ]
         return args, kwargs
 
