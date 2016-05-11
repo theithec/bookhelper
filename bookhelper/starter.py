@@ -34,4 +34,7 @@ class Starter(object):
             task = async_action.delay(self.action)
             return task.id
         else:
-            return self.action.run()
+            res = self.action.run()
+            self.errors += self.action.errors
+            return res
+
