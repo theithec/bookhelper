@@ -15,4 +15,8 @@ class StatusAction(Action):
                 self.errors.append("Missing task id" )
 
     def run(self):
-        return str(celeryapp.AsyncResult(self.conf.task_id).state)
+        result = celeryapp.AsyncResult(self.conf.task_id)
+        #return result.state
+        if result.state == "FAILURE":
+            return str(result.get(timeout=1, propagate=False))
+        return str(result.state)
