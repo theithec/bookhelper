@@ -6,7 +6,7 @@ Creates new version of a book
 import os
 import sys
 from bookhelper import Book, doi
-from bookhelper.celery import celeryapp
+from bookhelper.celeryapp import celeryapp
 from . import Action
 
 class StatusAction(Action):

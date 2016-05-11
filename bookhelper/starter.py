@@ -1,6 +1,6 @@
 from bookhelper import on_no_errors
 from bookhelper.cmds import publish, versionizer, status
-from bookhelper.celery import async_action
+from bookhelper.celeryapp import async_action
 
 
 class Starter(object):
