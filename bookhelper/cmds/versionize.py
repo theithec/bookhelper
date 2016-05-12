@@ -3,19 +3,19 @@
 Creates new version of a book
 '''
 import os
-import sys
 from bs4 import BeautifulSoup
-from bookhelper import Book,  doi
+from bookhelper import Book,  doi, utils
 from . import BookAction
+
 
 class VersionizeAction(BookAction):
     def validate(self):
         if not self.conf.no_doi:
             args = ["dc_symbol", "dc_password", "dc_prefix", "dc_identifier",
                     "dc_version"]
-            for arg  in args:
-                if  getattr(self.conf,arg, None) is None  :
-                    self.errors.append("Missing argument: %s" % arg )
+            for arg in args:
+                if getattr(self.conf, arg, None) is None:
+                    self.errors.append("Missing argument: %s" % arg)
 
             bookdoi = doi.BookDoi(self.conf)
             bookdoi.validate()
@@ -27,8 +27,17 @@ class VersionizeAction(BookAction):
     def build_book(self, site):
         self.book = Book(site, self.conf.book, "live")
 
-    def versionized_bookpage_text(self ):
+    def versionized_template(self):
+        doi = getattr(self, 'doi', None)
+        if doi:
+            self.book.info['DOI'] = doi
+        return utils.template_from_info(self.book.info)
+
+    def versionized_bookpage_text(self):
         txt = self.book.book_page.text
+        txt = (txt[:self.book.template_startpos] +
+               self.versionized_template() +
+               txt[self.book.template_endpos:])
         soup = BeautifulSoup(txt, 'html.parser')
         toc = soup.find('div', class_='BookTOC')
         content = toc.contents[0]
@@ -39,7 +48,7 @@ class VersionizeAction(BookAction):
         content.replaceWith(stable_content)
         return soup.decode(formatter=None)
 
-    def run(self ):
+    def run(self):
         version_page_txt = self.versionized_bookpage_text()
         pagetitle = '%s/%s' % (self.book.book_page.title, self.conf.version)
         site = self.get_site()
@@ -47,6 +56,3 @@ class VersionizeAction(BookAction):
         version_page = site.Pages[pagetitle]
         version_page.save(version_page_txt)
         return "FAILED" if self.errors else "SUCCESS"
-
-
-

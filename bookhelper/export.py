@@ -11,7 +11,7 @@ from datetime import datetime
 import pypandoc
 from bs4 import BeautifulSoup
 
-from . import get_siteurl
+from .utils import get_siteurl
 
 
 class Export(object):

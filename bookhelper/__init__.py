@@ -4,11 +4,13 @@ shared classes and functions
 '''
 
 import os
+import re
 import logging
 from bs4 import BeautifulSoup
 
 from .utils import (parse_tocline, tocline_external_links_re,
-                    tocline_internal_links_re, parse_template_text)
+                    tocline_internal_links_re, parse_template_text,
+                    on_no_errors)
 
 EXPORTKEYS = ['pdf', 'print', 'odt']
 
@@ -68,11 +70,7 @@ class BaseBookTocItem(object):
 
     def __init__(self, site, book, line):
         self.is_valid = False
-        match = re.match(self.item_re, line.strip())
-        logging.debug("MATCH %s %s " % (line, str(match)))
-        list_part, link_part = match.groups()
-        self.depth = len(list_part)
-        link_parts = link_part.split('|')
+        self.depth, link_parts = parse_tocline(line)
         self.target = link_parts[0].replace(" ", "_")
         if "#" in self.target:
             return

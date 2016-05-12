@@ -14,6 +14,17 @@ class Action(object):
     def run(self, *args, **kwargs):
         raise NotImplementedError
 
+    def get_site(self):
+        site_arg = None
+        if self.conf.no_https:
+            site_arg = ("http", self.conf.api_url, )
+        else:
+            site_arg = self.conf.api_url
+
+        # @todo handle exceptions
+        site = mwclient.Site(site_arg)
+
+        return site
 
 class BookAction(Action):
 
@@ -33,14 +44,4 @@ class BookAction(Action):
         except Exception as e:
             self.errors.append('Login failed ' + str(e))
 
-    def get_site(self):
-        site_arg = None
-        if self.conf.no_https:
-            site_arg = ("http", self.conf.api_url, )
-        else:
-            site_arg = self.conf.api_url
 
-        # @todo handle exceptions
-        site = mwclient.Site(site_arg)
-
-        return site
