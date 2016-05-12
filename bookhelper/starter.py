@@ -1,5 +1,5 @@
 from bookhelper import on_no_errors
-from bookhelper.cmds import publish, versionizer, status
+from bookhelper.cmds import publish, versionize, status, create, importer
 from bookhelper.celeryapp import async_action
 
 
@@ -7,8 +7,10 @@ class Starter(object):
 
     command_mapping = {
         "publish": publish.PublishAction,
-        "versionize": versionizer.VersionizeAction,
-        "status": status.StatusAction
+        "versionize": versionize.VersionizeAction,
+        "status": status.StatusAction,
+        "create": create.CreateAction,
+        "import": importer.ImportAction,
     }
 
     def __init__(self, conf):

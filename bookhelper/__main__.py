@@ -104,6 +104,13 @@ def main():
     parser_status = subparsers.add_parser('status', help='status --help')
     parser_status.add_argument("task_id", help="Task id of a queued task")
 
+    parser_create = subparsers.add_parser('create', help='create --help')
+    parser_create.add_argument("json_source",
+                               help="The data for the book to create")
+
+    parser_import = subparsers.add_parser('import', help='import --help')
+    parser_import.add_argument("source_path", help="Path to source path")
+
     args = parser.parse_args()
     if args.conf:
         merge_config(args)
