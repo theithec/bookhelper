@@ -5,29 +5,13 @@ shared classes and functions
 
 import os
 import logging
-import re
-
 from bs4 import BeautifulSoup
+
+from .utils import (parse_tocline, tocline_external_links_re,
+                    tocline_internal_links_re, parse_template_text)
 
 EXPORTKEYS = ['pdf', 'print', 'odt']
 
-
-def get_siteurl(site):
-    '''mwclient.Site does not have a "full url" attribute.
-        But we need one for expanding relative paths.'''
-    scheme = 'https'
-    host = site.host
-    if isinstance(host, (list, tuple)):
-        scheme, host = host
-    return '{scheme}://{host}'.format(scheme=scheme, host=host)
-
-
-def on_no_errors(meth):
-    '''Decorator for methods in classes with an error attribute.'''
-    def inner(*args):
-        if not args[0].errors:
-            return meth(*args)
-    return inner
 
 
 class StablePage(object):
@@ -101,7 +85,7 @@ class BaseBookTocItem(object):
 
 
 class LiveBookTocItem(BaseBookTocItem):
-    item_re = re.compile(r'((?:#|\*)+).*\[\[(.*)\]\]')
+    item_re = tocline_internal_links_re
 
     def __init__(self, site, book, line):
         super().__init__(site, book, line)
@@ -116,22 +100,22 @@ class LiveBookTocItem(BaseBookTocItem):
 
 
 class VersionizedBookTocItem(BaseBookTocItem):
-    item_re = re.compile(r'((?:#|\*)+).*\[(.*)\]')
     title_re = re.compile(r'.*title=(.*?)&')
+    item_re = tocline_external_links_re
 
     def _title(self):
         return re.match(self.title_re, self.target).groups()[0]
 
 
 class Book(object):
-    '''Represents a handbuch.io-`book`
+    '''Represents an exisiting handbuch.io-`book`
 
        Attempts to analyze the toc and the first template
        on the book's start page
     '''
 
     def __init__(self, site, title, version):
-        '''Creates a book.
+        '''Build a book.
         Args:
             site (Site): Mwclient site object
             title(str): Booktitle
@@ -178,23 +162,13 @@ class Book(object):
 
     @on_no_errors
     def _get_info(self):
-        i = {}
         txt = self.book_page.text
         self.template_startpos = txt.find('{{')
         self.template_endpos = txt.find('}}') + 2
         inner = txt[self.template_startpos + 2: self.template_endpos - 2]
-        inner = inner[inner.find('|'):]
-        if not inner:
+        d = parse_template_text(inner)
+        if not d:
             self.errors.append(
                 'No template found for "%s"' % self.book_page.title)
 
-        while(True):
-            next_ = inner.find('|')
-            keyval = inner[:next_].split("=")
-            inner = inner[next_ + 1:]
-            if len(keyval) == 2:
-                k, v = keyval
-                i[k.strip()] = v.strip()
-            if next_ < 0:
-                break
-        return i
+        return d
