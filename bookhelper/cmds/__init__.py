@@ -3,15 +3,19 @@ from bookhelper import on_no_errors, Book
 
 
 class Action(object):
-    is_book_action = False
 
     def __init__(self, conf):
         self.errors = []
         self.conf = conf
 
+    def validate(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def run(self, *args, **kwargs):
+        raise NotImplementedError
+
 
 class BookAction(Action):
-    is_book_action = True
 
     def build_book(self, site):
         self.book = Book(site, self.conf.book, self.conf.version)

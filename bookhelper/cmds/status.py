@@ -1,7 +1,7 @@
 
-'''versionizer.py
+'''status.py
 
-Creates new version of a book
+Gets the state of a celery task by id
 '''
 import os
 import sys
