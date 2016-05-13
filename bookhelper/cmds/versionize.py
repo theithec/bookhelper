@@ -51,8 +51,7 @@ class VersionizeAction(BookAction):
     def run(self):
         version_page_txt = self.versionized_bookpage_text()
         pagetitle = '%s/%s' % (self.book.book_page.title, self.conf.version)
-        site = self.get_site()
-        self.login(site)
+        self.login()
         version_page = site.Pages[pagetitle]
         version_page.save(version_page_txt)
         return "FAILED" if self.errors else "SUCCESS"

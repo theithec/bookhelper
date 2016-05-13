@@ -1,4 +1,9 @@
+'''
+python -m bookhelper -c bookhelper.cfg create '{"title": "CBook2",  "pages": [{"title": "CBook", "body": "p1"}, {"title": "Einleitung", "toctitle": "zur Eil", "body": "BAla"}], "info": {"AUTOREN": "x"}}'
+'''
+import os
 import json
+import logging
 from . import Action
 from bookhelper.utils import template_from_info
 class CreateAction(Action):
@@ -15,13 +20,24 @@ class CreateAction(Action):
         except json.decoder.JSONDecodeError as e:
             self.errors.append(str(e))
             return
-        for key in ('title', 'info', 'toc', 'pages'):
+        for key in ('title', 'info', 'pages'):
             v = self.bookdata.get(key, None)
             if not v:
                 self.errors.append("Missing key: %s" % key)
 
-    def mk_page(self, title):
-        body = self.pages[title]
+    def save_page(self, title, content):
+        logging.debug("Try save page: %s" % title)
+        page = self.site.Pages[title]
+        print ("PT", page.text())
+        if page.text():
+            self.errors.append("Page already exists: %s" % page)
+            return
+        page.save(content)
+
+    def mk_page(self, page):
+        txt = " # %s #\n" % page['title']
+        txt += "\n%s\n" % page['body']
+        self.save_page(os.path.join(self.title, page['title']), txt)
 
     def mk_toc(self):
         toc = '\n<div class="BookTOC">\n'
@@ -42,8 +58,6 @@ class CreateAction(Action):
         else:
             self.errors.append("No valid info found")
             return
-        print(self.title)
-        print(self.pages)
         titlepagelist = [
             p for p in self.pages
             if self.title == p['title']]
@@ -53,13 +67,16 @@ class CreateAction(Action):
             self.pages.pop(self.pages.index(titlepage))
 
         txt += "\n%s" % self.mk_toc()
-
-        print ("BPC", txt)
+        self.save_page(self.title, txt)
 
 
     def run(self):
-        pass
+        import pdb; pdb.set_trace()
+        self.site = self.login()
+        print("SESI", self.site)
         self.title = self.bookdata['title']
         self.pages = self.bookdata['pages']
         self.book_page = self.mk_book_page()
+        for page in self.pages:
+            self.mk_page(page)
 

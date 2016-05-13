@@ -7,6 +7,7 @@ class Action(object):
     def __init__(self, conf):
         self.errors = []
         self.conf = conf
+        self._site = None
 
     def validate(self, *args, **kwargs):
         raise NotImplementedError
@@ -26,6 +27,16 @@ class Action(object):
 
         return site
 
+    @on_no_errors
+    def login(self):
+        site = self.get_site()
+        try:
+            site.login(self.conf.user, self.conf.password)
+        except Exception as e:
+            self.errors.append('Login failed ' + str(e))
+        return site
+
+
 class BookAction(Action):
 
     def build_book(self, site):
@@ -36,12 +47,5 @@ class BookAction(Action):
         if site:
             self.build_book(site)
             self.errors += self.book.errors
-
-    @on_no_errors
-    def login(self, site):
-        try:
-            site.login(self.conf.user, self.conf.password)
-        except Exception as e:
-            self.errors.append('Login failed ' + str(e))
 
 
