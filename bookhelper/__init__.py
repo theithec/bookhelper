@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 
 from .utils import (parse_tocline, tocline_external_links_re,
                     tocline_internal_links_re, parse_template_text,
-                    on_no_errors)
+                    on_no_errors, get_siteurl)
 
 EXPORTKEYS = ['pdf', 'print', 'odt']
 
@@ -70,7 +70,7 @@ class BaseBookTocItem(object):
 
     def __init__(self, site, book, line):
         self.is_valid = False
-        self.depth, link_parts = parse_tocline(line)
+        self.depth, link_parts = parse_tocline(line, self.item_re)
         self.target = link_parts[0].replace(" ", "_")
         if "#" in self.target:
             return

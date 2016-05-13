@@ -1,3 +1,12 @@
+''' cmds/__init__.py
+
+Base action classes. An action is meant to be called from commandline
+or from another action.
+Actions that may be called as a queued command must not have the mwclient.site
+as an attribute (it's not serializable) before the `run` method is called.
+
+'''
+
 import mwclient
 from bookhelper import on_no_errors, Book
 
@@ -43,7 +52,7 @@ class BookAction(Action):
         self.book = Book(site, self.conf.book, self.conf.version)
 
     def validate(self, site):
-        self.login(site)
+        site = self.login()
         if site:
             self.build_book(site)
             self.errors += self.book.errors

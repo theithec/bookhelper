@@ -21,7 +21,7 @@ class VersionizeAction(BookAction):
             bookdoi.validate()
             self.errors += bookdoi.errors
 
-        site = self.get_site()
+        site = self.login()
         super().validate(site)
 
     def build_book(self, site):
@@ -51,7 +51,7 @@ class VersionizeAction(BookAction):
     def run(self):
         version_page_txt = self.versionized_bookpage_text()
         pagetitle = '%s/%s' % (self.book.book_page.title, self.conf.version)
-        self.login()
-        version_page = site.Pages[pagetitle]
+        self.site = self.login()
+        version_page = self.site.Pages[pagetitle]
         version_page.save(version_page_txt)
         return "FAILED" if self.errors else "SUCCESS"

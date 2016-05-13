@@ -52,8 +52,7 @@ def book_exports(exportkeys, exportkwargs):
 class PublishAction(BookAction):
 
     def validate(self):
-        site = self.get_site()
-        self.login(site)
+        site = self.login()
         if self.conf.export == ['all']:
             self.conf.export = EXPORTKEYS
         if not set(self.conf.export).issubset(EXPORTKEYS):
@@ -62,13 +61,12 @@ class PublishAction(BookAction):
         super().validate(site)
 
     def run(self):
-        site = self.get_site()
-        self.login(site)
+        self.site = self.login()
         if "print" in self.conf.export:
             export.PRINTExport.print_version_title = self.conf.printpage_title
 
         kwargs = {
-            'site': site,
+            'site': self.site,
             'overwrite': self.conf.force_overwrite or self.conf.version == 'live',
             'title': self.book.book_page.title,
             'friendly_title': self.book.book_page.friendly_title,
