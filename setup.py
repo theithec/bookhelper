@@ -83,7 +83,6 @@ setup(
         "pypandoc==1.1.3",
         "datacite>=0.2.1",
         "PyYAML==3.11",
-
     ],
      dependency_links=[
          "https://github.com/inveniosoftware/datacite/archive/master.zip#egg=datacite-0.2.1",
@@ -116,7 +115,7 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'bookhelper=bookhelper',
+            'bookhelper=bookhelper.__main__:main',
         ],
     },
 )
