@@ -80,9 +80,10 @@ setup(
         "six==1.10.0",
         "SQLAlchemy==1.0.12",
         "celery==3.1.23",
-        "lxml==3.6.0",
         "pypandoc==1.1.3",
         "datacite>=0.2.1",
+        "PyYAML==3.11",
+
     ],
      dependency_links=[
          "https://github.com/inveniosoftware/datacite/archive/master.zip#egg=datacite-0.2.1",
