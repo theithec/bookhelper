@@ -99,7 +99,6 @@ def main():
     parser_version.add_argument("--dc-password", help="Datacite password")
     parser_version.add_argument("--dc-prefix", help="Datacite prefix")
     parser_version.add_argument("--dc-identifier", help="Datacite identifier")
-    parser_version.add_argument("--dc-version", help="Datacite version")
 
     parser_status = subparsers.add_parser('status', help='status --help')
     parser_status.add_argument("task_id", help="Task id of a queued task")
