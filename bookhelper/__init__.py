@@ -87,7 +87,7 @@ class LiveBookTocItem(BaseBookTocItem):
 
     def __init__(self, site, book, line):
         super().__init__(site, book, line)
-        if self.is_valid:
+        if self.is_valid and not book.errors:
             self.stable_link = (
                 '<span class="plainlinks">' +
                 '[{0.page.fullurl} | {0.text}]'.format(self) +

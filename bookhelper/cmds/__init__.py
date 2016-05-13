@@ -16,6 +16,7 @@ class Action(object):
     def __init__(self, conf):
         self.errors = []
         self.conf = conf
+        self.conf.force_overwrite = getattr(self.conf, 'force_overwrite', False)
         self._site = None
 
     def validate(self, *args, **kwargs):
@@ -26,13 +27,17 @@ class Action(object):
 
     def get_site(self):
         site_arg = None
+        site = None
         if self.conf.no_https:
             site_arg = ("http", self.conf.api_url, )
         else:
             site_arg = self.conf.api_url
 
         # @todo handle exceptions
-        site = mwclient.Site(site_arg)
+        try:
+            site = mwclient.Site(site_arg)
+        except Exception as e:
+            self.errors.append(str(e))
 
         return site
 

@@ -2,6 +2,7 @@ import os
 import os.path
 import yaml
 import json
+import pypandoc
 from . import Action
 from .create import CreateAction
 
@@ -10,7 +11,6 @@ class ImportAction(Action):
     '''Makes a book from files in conf.sourcepath (if valid)'''
 
     def validate(self):
-        print("C", self.conf)
         spath = getattr(self.conf, 'source_path', None)
         if spath.endswith('/'):
             spath = spath[:-1]
@@ -28,21 +28,27 @@ class ImportAction(Action):
     def mk_pages(self):
         self.pagesdata = []
         for fname in self.files:
+            if not (fname.endswith(".md" or fname.endswith(".markdown"))):
+                continue
             with open(os.path.join(self.source_path, fname)) as f:
+                md = f.read()
+                body = pypandoc.convert(md, "mediawiki", format="md")
+                title =  fname.split("-", maxsplit=1)[-1] # rm "01-" ...
+                title = title.rsplit(".", maxsplit=1)[0] # rm filetype
                 p = {
-                    'title': fname.split("-", maxsplit=1)[-1],
-                    'body': f.read()
+                    'title': title,
+                    'body': body
                 }
                 self.pagesdata.append(p)
-                print("PAGE", p)
 
     def mk_info(self):
         with open(os.path.join(self.source_path, 'title.txt')) as f:
-            self.infodata = (yaml.safe_load(f))
+            data = (yaml.safe_load(f))
+            self.infodata = dict([(k.upper(), v) for k,v in data.items()])
 
     def create(self):
         self.conf.json_source = json.dumps({
-            'title': self.infodata.pop('title'),
+            'title': self.title,
             'pages': self.pagesdata,
             'info': self.infodata
         })
@@ -57,7 +63,7 @@ class ImportAction(Action):
         files.pop(files.index('title.txt'))
         self.files = sorted(files)
         print("files", files)
-        title = os.path.basename(os.path.abspath(self.source_path))
+        self.title = os.path.basename(os.path.abspath(self.source_path))
         self.mk_pages()
         self.mk_info()
         self.create()

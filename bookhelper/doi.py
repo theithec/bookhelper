@@ -19,9 +19,7 @@ class BookDoi(object):
         r = "".join([random.choice( string.ascii_uppercase + string.digits)
                 for _ in range(5)
             ])
-        print("R", r)
         doi = "/".join([ self.conf.dc_identifier,r])
-        print("DOI", doi)
         try:
             doc = self.client.metadata_get(doi)
             # self.errors.append('Doi "%s" already exists' % self.doi)

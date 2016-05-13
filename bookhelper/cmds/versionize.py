@@ -54,5 +54,8 @@ class VersionizeAction(BookAction):
         pagetitle = '%s/%s' % (self.book.book_page.title, self.conf.version)
         self.site = self.login()
         version_page = self.site.Pages[pagetitle]
-        version_page.save(version_page_txt)
+        if version_page.text() and not self.conf.force_overwrite:
+            self.errors.append("Page already exists")
+        else:
+            version_page.save(version_page_txt)
         return "FAILED" if self.errors else "SUCCESS"

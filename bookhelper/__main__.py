@@ -1,3 +1,8 @@
+'''python -m bookhelper
+
+Runs the bookhelper module with command line args.
+
+'''
 import sys
 import configparser
 import logging
@@ -36,7 +41,7 @@ def merge_config(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(prog="BOOKHELPER")
+    parser = argparse.ArgumentParser(prog="python -m bookhelper")
     subparsers = parser.add_subparsers(help='sub-command help', dest="cmd")
     subparsers.required = True
     parser.add_argument(
@@ -60,6 +65,11 @@ def main():
     parser.add_argument(
         "-c", "--conf",
         help="Path to config file", default="")
+    parser.add_argument(
+        "--force-overwrite", help="Ignore \"Already existing\"",
+        action="store_true", default=False)
+
+
     # parser.add_argument(
     #    "--tmp-path",
     #    help="path to a tmp dir for file creation and celerydb")
@@ -83,10 +93,6 @@ def main():
     parser_publish.add_argument(
         "--printpage-title", help="Title of the printpage",
         default="_Druckversion")
-    parser_publish.add_argument(
-        "--force-overwrite", help="Overwrite stable book version and files",
-        action="store_true", default=False)
-
     parser_version = subparsers.add_parser('versionize', help='version --help')
     parser_version.add_argument(*book_args_kwargs[0], **book_args_kwargs[1])
     version_args_kwargs[1]['required'] = True

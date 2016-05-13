@@ -5,7 +5,7 @@ import os
 import json
 import logging
 from . import Action
-from bookhelper.utils import template_from_info
+from bookhelper.utils import template_from_info, on_no_errors
 class CreateAction(Action):
 
     def validate(self):
@@ -16,7 +16,6 @@ class CreateAction(Action):
 
         try:
             self.bookdata = json.loads(jsrc)
-            print(self.bookdata)
         except json.decoder.JSONDecodeError as e:
             self.errors.append(str(e))
             return
@@ -25,13 +24,13 @@ class CreateAction(Action):
             if not v:
                 self.errors.append("Missing key: %s" % key)
 
+    @on_no_errors
     def save_page(self, title, content):
         logging.debug("Try save page: %s" % title)
         page = self.site.Pages[title]
-        print ("PT", page.text())
-        if page.text():
+        if page.text() and not self.conf.force_overwrite:
             self.errors.append("Page already exists: %s" % page)
-            return
+            #return
         page.save(content)
 
     def mk_page(self, page):
@@ -40,18 +39,20 @@ class CreateAction(Action):
         self.save_page(os.path.join(self.title, page['title']), txt)
 
     def mk_toc(self):
-        toc = '\n<div class="BookTOC">\n'
+        toc = '\n==Inhaltsverzeichnis==\n'
+        toc += '\n<div class="BookTOC">\n'
         for page in self.pages:
             title = page['title']
             toctitle = page.get('toctitle', title)
-            toc += "\n# [[%s|%s]]\n" % (toctitle, title)
+            toc += "\n# [[%s|%s]]\n" % (
+                os.path.join(self.title, title),
+                toctitle)
         toc += "\n</div>\n"
         return toc
 
 
     def mk_book_page(self):
-        body = ""
-        txt = '# {0.title} #\n\n'.format(self)
+        txt = ''
         tmpl= template_from_info(self.bookdata['info'])
         if tmpl:
             txt += tmpl
@@ -71,9 +72,7 @@ class CreateAction(Action):
 
 
     def run(self):
-        import pdb; pdb.set_trace()
         self.site = self.login()
-        print("SESI", self.site)
         self.title = self.bookdata['title']
         self.pages = self.bookdata['pages']
         self.book_page = self.mk_book_page()
