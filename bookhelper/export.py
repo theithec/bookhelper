@@ -139,7 +139,7 @@ class PDFExport(PandocExport):
         kwargs['extra_args'] = [
             '--latex-engine=xelatex',
             '--chapters',
-            '--verbose',
+            #'--verbose',
             '--standalone',
             '--toc',
             '--template=%s/template.latex' % dirname(abspath(__file__)),
