@@ -1,3 +1,15 @@
+'''
+Imports a book from files in a directory (the source_path)
+Expects the following structure:
+    title.txt with yaml metadata
+    01-somename.md (or .markdown)
+    02-someothername.md (or .markdown)
+
+Note that everything left of and including the first occurance of "-" will be
+removed from the filename.
+For now the title of the book is the name of the directory.
+
+'''
 import os
 import os.path
 import yaml
@@ -21,7 +33,8 @@ class ImportAction(Action):
                 self.errors.append("%s is not a directory" % spath)
 
             elif not os.path.isfile(os.path.join(spath, 'title.txt')):
-                self.errors.append("%s not found" % (os.path.join(spath, 'title.txt')))
+                self.errors.append(
+                    "%s not found" % (os.path.join(spath, 'title.txt')))
 
         self.source_path = spath
 
@@ -33,8 +46,8 @@ class ImportAction(Action):
             with open(os.path.join(self.source_path, fname)) as f:
                 md = f.read()
                 body = pypandoc.convert(md, "mediawiki", format="md")
-                title =  fname.split("-", maxsplit=1)[-1] # rm "01-" ...
-                title = title.rsplit(".", maxsplit=1)[0] # rm filetype
+                title = fname.split("-", maxsplit=1)[-1]  # rm "01-" ...
+                title = title.rsplit(".", maxsplit=1)[0]  # rm filetype
                 p = {
                     'title': title,
                     'body': body
@@ -43,8 +56,7 @@ class ImportAction(Action):
 
     def mk_info(self):
         with open(os.path.join(self.source_path, 'title.txt')) as f:
-            data = (yaml.safe_load(f))
-            self.infodata = dict([(k.upper(), v) for k,v in data.items()])
+            self.infodata = yaml.safe_load(f)
 
     def create(self):
         self.conf.json_source = json.dumps({
@@ -59,16 +71,10 @@ class ImportAction(Action):
         self.errors += ca.errors
 
     def run(self):
-        files =  os.listdir(self.source_path)
+        files = os.listdir(self.source_path)
         files.pop(files.index('title.txt'))
         self.files = sorted(files)
-        print("files", files)
         self.title = os.path.basename(os.path.abspath(self.source_path))
         self.mk_pages()
         self.mk_info()
         self.create()
-        '''jdata = {
-            'title': title,
-            'pages': self.mk_pages(),
-            'info': self.mk_info()
-        }'''

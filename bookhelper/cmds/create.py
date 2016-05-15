@@ -1,11 +1,23 @@
 '''
-python -m bookhelper -c bookhelper.cfg create '{"title": "CBook2",  "pages": [{"title": "CBook", "body": "p1"}, {"title": "Einleitung", "toctitle": "zur Eil", "body": "BAla"}], "info": {"AUTOREN": "x"}}'
+Creates a boook from json-data.
+
+Eample:
+python -m bookhelper -c bookhelper.cfg create \
+'{"title": "Book1",  "pages": [{"title": "Book1", "body": "Text1"}, \
+{"title": "Einleitung", "toctitle": "zur Eil", "body": "BAla"}], \
+"info": {"AUTOREN": "x"}}'
+
+If the title of a page is the booktitle, then the body will be included in the
+generated startpage.
 '''
+
 import os
 import json
 import logging
 from . import Action
 from bookhelper.utils import template_from_info, on_no_errors
+
+
 class CreateAction(Action):
 
     def validate(self):
@@ -30,12 +42,11 @@ class CreateAction(Action):
         page = self.site.Pages[title]
         if page.text() and not self.conf.force_overwrite:
             self.errors.append("Page already exists: %s" % page)
-            #return
+            return
         page.save(content)
 
     def mk_page(self, page):
-        txt = " # %s #\n" % page['title']
-        txt += "\n%s\n" % page['body']
+        txt = "\n%s\n" % page['body']
         self.save_page(os.path.join(self.title, page['title']), txt)
 
     def mk_toc(self):
@@ -50,10 +61,9 @@ class CreateAction(Action):
         toc += "\n</div>\n"
         return toc
 
-
     def mk_book_page(self):
         txt = ''
-        tmpl= template_from_info(self.bookdata['info'])
+        tmpl = template_from_info(self.bookdata['info'])
         if tmpl:
             txt += tmpl
         else:
@@ -69,7 +79,6 @@ class CreateAction(Action):
 
         txt += "\n%s" % self.mk_toc()
         self.save_page(self.title, txt)
-
 
     def run(self):
         self.site = self.login()

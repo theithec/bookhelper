@@ -51,9 +51,14 @@ def parse_template_text(txt):
 
 
 def template_from_info(info):
+    #import pdb; pdb.set_trace()
     t = u"{{Bookinfo\n"
+    info = dict([(k.upper(), v) for k,v in info.items()])
+    print("I", info)
     for key in ['ABSTRACT', 'AUTOREN', 'HERAUSGEBER', 'KONTRIBUTOREN',
                 'STAND', 'DOI']:
+        key = key.upper()
+
         if key in info:
             t += u"|%s = %s\n" % (key, info[key])
 
