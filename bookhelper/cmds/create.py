@@ -78,6 +78,7 @@ class CreateAction(Action):
             self.pages.pop(self.pages.index(titlepage))
 
         txt += "\n%s" % self.mk_toc()
+        txt += "\n[[Kategorie:Buch]]"
         self.save_page(self.title, txt)
 
     def run(self):

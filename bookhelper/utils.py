@@ -54,7 +54,7 @@ def template_from_info(info):
     #import pdb; pdb.set_trace()
     t = u"{{Bookinfo\n"
     info = dict([(k.upper(), v) for k,v in info.items()])
-    print("I", info)
+    #print("I", info)
     for key in ['ABSTRACT', 'AUTOREN', 'HERAUSGEBER', 'KONTRIBUTOREN',
                 'STAND', 'DOI']:
         key = key.upper()
