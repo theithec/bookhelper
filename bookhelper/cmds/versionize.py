@@ -58,4 +58,3 @@ class VersionizeAction(BookAction):
             self.errors.append("Page already exists")
         else:
             version_page.save(version_page_txt)
-        return "FAILED" if self.errors else "SUCCESS"

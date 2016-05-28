@@ -21,10 +21,13 @@ class Starter(object):
     def start(self):
         self.action.validate()
         self.errors += self.action.errors
+        res = "FAILED"
         if not self.errors:
-            return self.run_cmd()
-        else:
-            return "FAILED"
+            res = self.run_cmd()
+        if not self.errors:
+            if not res:
+                res = "SUCCESS"
+        return res
 
     @on_no_errors
     def get_action(self):
