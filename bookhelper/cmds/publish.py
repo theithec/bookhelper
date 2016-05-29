@@ -73,4 +73,5 @@ class PublishAction(BookAction):
             'src': get_book_src(self.book),
             'tmp_path': self.conf.tmp_path,
         }
+        #print("KWARGS", kwargs)
         self.errors += book_exports(self.conf.export, kwargs)

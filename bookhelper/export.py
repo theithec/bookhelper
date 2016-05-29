@@ -16,13 +16,14 @@ from .utils import get_siteurl
 
 class Export(object):
 
-    def __init__(self, site, src, title, friendly_title, overwrite=True):
+    def __init__(self, site, src, title, friendly_title, tmp_path, overwrite=True):
         self.site = site
         self.src = src
         self.title = title
         self.friendly_title = friendly_title
         self.overwrite = overwrite
         self.errors = []
+        self.tmp_path = tmp_path
         self.prestart()
 
     def prestart(self):
@@ -53,13 +54,12 @@ class PandocExport(Export):
         self.outfilename = (
             "%s.%s" % (self.title, self.outformat)
         ).replace("/", "_")
-        self.tmppath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tmp")
-        self.outpath = os.path.join(self.tmppath, self.outfilename)
+        self.outpath = os.path.join(self.tmp_path, self.outfilename)
         if not self.overwrite and isfile(self.outpath):
             self.errors.append('File "%s" already exists' % self.outfilename)
             return
 
-        os.environ["HOME"] = self.tmppath  # pandoc needs a $HOME
+        os.environ["HOME"] = self.tmp_path  # pandoc needs a $HOME
         self.start()
 
     def get_pandoc_params(self):
@@ -99,7 +99,7 @@ class PandocExport(Export):
             if c and c.startswith("/"):
                 tag['src'] = "".join((site_url, c),)
 
-        with open(os.path.join(self.tmppath, "src.html"), "w") as f:
+        with open(os.path.join(self.tmp_path, "src.html"), "w") as f:
             f.write(str(soup.prettify().encode("utf-8")))
 
         return soup
