@@ -1,6 +1,6 @@
 from bookhelper import on_no_errors
 from bookhelper.cmds import publish, versionize, status, create, importer
-from bookhelper.celeryapp import async_action
+
 
 
 class Starter(object):
@@ -36,6 +36,12 @@ class Starter(object):
 
     def run_cmd(self):
         if self.conf.queued:
+            # ugly, but ...
+            # celeryapp expects "--sqlitedb" in  sys.argv
+            import sys
+            sys.argv.append('--sqlitedb=/tmp/celery.dbsqlite')
+            #sys.exit(str(sys.argv))
+            from bookhelper.celeryapp import async_action
             task = async_action.delay(self.action)
             return task.id
         else:

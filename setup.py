@@ -83,6 +83,8 @@ setup(
         "pypandoc==1.1.3",
         "datacite>=0.2.1",
         "PyYAML==3.11",
+        "eventlet==0.19.0",
+
     ],
      dependency_links=[
          "https://github.com/inveniosoftware/datacite/archive/master.zip#egg=datacite-0.2.1",

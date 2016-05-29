@@ -70,9 +70,9 @@ def main():
         action="store_true", default=False)
 
 
-    # parser.add_argument(
-    #    "--tmp-path",
-    #    help="path to a tmp dir for file creation and celerydb")
+    parser.add_argument(
+        "--tmp-path",
+        help="path to a tmp dir for file creation and celerydb")
 
     # shared for subcommands - d.r.y.
     book_args_kwargs = (("book",), {'default': 'Beispielbuch', })

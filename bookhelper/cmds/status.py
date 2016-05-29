@@ -6,7 +6,6 @@ Gets the state of a celery task by id
 import os
 import sys
 from bookhelper import Book, doi
-from bookhelper.celeryapp import celeryapp
 from . import Action
 
 class StatusAction(Action):
@@ -15,6 +14,7 @@ class StatusAction(Action):
                 self.errors.append("Missing task id" )
 
     def run(self):
+        from bookhelper.celeryapp import celeryapp
         result = celeryapp.AsyncResult(self.conf.task_id)
         #return result.state
         if result.state == "FAILURE":
