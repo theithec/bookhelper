@@ -2,7 +2,6 @@ from bookhelper import on_no_errors
 from bookhelper.cmds import publish, versionize, status, create, importer
 
 
-
 class Starter(object):
 
     command_mapping = {
@@ -39,7 +38,7 @@ class Starter(object):
             # ugly, but ...
             # celeryapp expects "--sqlitedb" in  sys.argv
             import sys
-            sys.argv.append('--sqlitedb=/tmp/celery.dbsqlite')
+            sys.argv.append('--db-path=%s' % (self.conf.tmp_path))
             #sys.exit(str(sys.argv))
             from bookhelper.celeryapp import async_action
             task = async_action.delay(self.action)
