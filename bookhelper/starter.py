@@ -34,12 +34,10 @@ class Starter(object):
         return Action(self.conf)
 
     def run_cmd(self):
+        import sys
+        sys.argv.append('--db-path=%s' % (self.conf.tmp_path))
+        #sys.exit(str(sys.argv))
         if self.conf.queued:
-            # ugly, but ...
-            # celeryapp expects "--sqlitedb" in  sys.argv
-            import sys
-            sys.argv.append('--db-path=%s' % (self.conf.tmp_path))
-            #sys.exit(str(sys.argv))
             from bookhelper.celeryapp import async_action
             task = async_action.delay(self.action)
             return task.id
