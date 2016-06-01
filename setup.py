@@ -23,7 +23,7 @@ setup(
 
     description='Creates versions and files from a couple of mediawiki pages',
     long_description=long_description,
-
+    include_package_data=True,
     # The project's main homepage.
     # url='https://github.com/pypa/sampleproject',
 
@@ -103,7 +103,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'templates': ['template.latex'],
+        'bookhelper': ['bookhelper/template.latex'],
     },
 
     # Although 'package_data' is the preferred approach, in some case you may
