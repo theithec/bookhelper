@@ -71,6 +71,7 @@ class PublishAction(BookAction):
             'title': self.book.book_page.title,
             'friendly_title': self.book.book_page.friendly_title,
             'src': get_book_src(self.book),
+            'info': self.book.info,
             'tmp_path': self.conf.tmp_path,
         }
         #print("KWARGS", kwargs)

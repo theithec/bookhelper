@@ -16,11 +16,13 @@ from .utils import get_siteurl
 
 class Export(object):
 
-    def __init__(self, site, src, title, friendly_title, tmp_path, overwrite=True):
+    def __init__(self, site, src, title, friendly_title, info, tmp_path,
+                 overwrite=True):
         self.site = site
         self.src = src
         self.title = title
         self.friendly_title = friendly_title
+        self.info = info
         self.overwrite = overwrite
         self.errors = []
         self.tmp_path = tmp_path
@@ -144,9 +146,11 @@ class PDFExport(PandocExport):
             '--toc',
             '--template=%s/template.latex' % dirname(abspath(__file__)),
             # '-M', 'documentclass=book',
-            '-M', 'author="Tim Heithecker"',
+            '-M', 'author="%s"' % self.info.get(
+                "AUTOREN",
+                self.info.get("HERAUSGEBER", "")),
             '-M', 'include-before="Wichtige Hinweise"',
-            '-M', 'subtitle="DIe Beschreibung"',
+            '-M', 'subtitle="%s"' % self.info.get("ABSTRACT"),
             '-M', 'lang="german"',
             '-M', 'mainlang="german"',
             '-M', 'title="%s"' % self.friendly_title
