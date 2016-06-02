@@ -1,4 +1,4 @@
-'''
+u'''
 Creates a boook from json-data.
 
 Eample:
@@ -11,6 +11,7 @@ If the title of a page is the booktitle, then the body will be included in the
 generated startpage.
 '''
 
+from __future__ import absolute_import
 import os
 import json
 import logging
@@ -21,70 +22,70 @@ from bookhelper.utils import template_from_info, on_no_errors
 class CreateAction(Action):
 
     def validate(self):
-        jsrc = getattr(self.conf, "json_source", None)
+        jsrc = getattr(self.conf, u"json_source", None)
         if not jsrc:
-            self.errors.append("No json source")
+            self.errors.append(u"No json source")
             return
 
         try:
             self.bookdata = json.loads(jsrc)
-        except json.decoder.JSONDecodeError as e:
-            self.errors.append(str(e))
+        except json.decoder.JSONDecodeError, e:
+            self.errors.append(unicode(e))
             return
-        for key in ('title', 'info', 'pages'):
+        for key in (u'title', u'info', u'pages'):
             v = self.bookdata.get(key, None)
             if not v:
-                self.errors.append("Missing key: %s" % key)
+                self.errors.append(u"Missing key: %s" % key)
 
     @on_no_errors
     def save_page(self, title, content):
-        logging.debug("Try save page: %s" % title)
+        logging.debug(u"Try save page: %s" % title)
         page = self.site.Pages[title]
         if page.text() and not self.conf.force_overwrite:
-            self.errors.append("Page already exists: %s" % page)
+            self.errors.append(u"Page already exists: %s" % page)
             return
         page.save(content)
 
     def mk_page(self, page):
-        txt = "\n%s\n" % page['body']
-        self.save_page(os.path.join(self.title, page['title']), txt)
+        txt = u"\n%s\n" % page[u'body']
+        self.save_page(os.path.join(self.title, page[u'title']), txt)
 
     def mk_toc(self):
-        toc = '\n==Inhaltsverzeichnis==\n'
-        toc += '\n<div class="BookTOC">\n'
+        toc = u'\n==Inhaltsverzeichnis==\n'
+        toc += u'\n<div class="BookTOC">\n'
         for page in self.pages:
-            title = page['title']
-            toctitle = page.get('toctitle', title)
-            toc += "\n# [[%s|%s]]\n" % (
+            title = page[u'title']
+            toctitle = page.get(u'toctitle', title)
+            toc += u"\n# [[%s|%s]]\n" % (
                 os.path.join(self.title, title),
                 toctitle)
-        toc += "\n</div>\n"
+        toc += u"\n</div>\n"
         return toc
 
     def mk_book_page(self):
-        txt = ''
-        tmpl = template_from_info(self.bookdata['info'])
+        txt = u''
+        tmpl = template_from_info(self.bookdata[u'info'])
         if tmpl:
             txt += tmpl
         else:
-            self.errors.append("No valid info found")
+            self.errors.append(u"No valid info found")
             return
         titlepagelist = [
             p for p in self.pages
-            if self.title == p['title']]
+            if self.title == p[u'title']]
         if titlepagelist:
             titlepage = titlepagelist[0]
-            txt += "\n %s \n " % titlepage['body']
+            txt += u"\n %s \n " % titlepage[u'body']
             self.pages.pop(self.pages.index(titlepage))
 
-        txt += "\n%s" % self.mk_toc()
-        txt += "\n[[Kategorie:Buch]]"
+        txt += u"\n%s" % self.mk_toc()
+        txt += u"\n[[Kategorie:Buch]]"
         self.save_page(self.title, txt)
 
     def run(self):
         self.site = self.login()
-        self.title = self.bookdata['title']
-        self.pages = self.bookdata['pages']
+        self.title = self.bookdata[u'title']
+        self.pages = self.bookdata[u'pages']
         self.book_page = self.mk_book_page()
         for page in self.pages:
             self.mk_page(page)

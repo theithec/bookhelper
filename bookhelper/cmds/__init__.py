@@ -1,4 +1,4 @@
-''' cmds/__init__.py
+u''' cmds/__init__.py
 
 Base action classes. An action is meant to be called from commandline
 or from another action.
@@ -7,6 +7,7 @@ as an attribute (it's not serializable) before the `run` method is called.
 
 '''
 
+from __future__ import absolute_import
 import mwclient
 from bookhelper import on_no_errors, Book
 
@@ -16,7 +17,7 @@ class Action(object):
     def __init__(self, conf):
         self.errors = []
         self.conf = conf
-        self.conf.force_overwrite = getattr(self.conf, 'force_overwrite', False)
+        self.conf.force_overwrite = getattr(self.conf, u'force_overwrite', False)
         self._site = None
 
     def validate(self, *args, **kwargs):
@@ -29,15 +30,15 @@ class Action(object):
         site_arg = None
         site = None
         if self.conf.no_https:
-            site_arg = ("http", self.conf.api_url, )
+            site_arg = (u"http", self.conf.api_url, )
         else:
             site_arg = self.conf.api_url
 
         # @todo handle exceptions
         try:
             site = mwclient.Site(site_arg)
-        except Exception as e:
-            self.errors.append(str(e))
+        except Exception, e:
+            self.errors.append(unicode(e))
 
         return site
 
@@ -46,8 +47,8 @@ class Action(object):
         site = self.get_site()
         try:
             site.login(self.conf.user, self.conf.password)
-        except Exception as e:
-            self.errors.append('Login failed ' + str(e))
+        except Exception, e:
+            self.errors.append(u'Login failed ' + unicode(e))
         return site
 
 

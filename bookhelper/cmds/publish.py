@@ -1,7 +1,8 @@
-'''publish.py
+u'''publish.py
 
 runs `exportexports` on a book.
 '''
+from __future__ import absolute_import
 import sys
 import logging
 import re
@@ -10,10 +11,10 @@ from bookhelper import export, EXPORTKEYS
 from . import BookAction
 
 def get_pagetext_from_item(item, found_references):
-    txt = "\n\n=%s=\n\n" % item.page.friendly_title
+    txt = u"\n\n=%s=\n\n" % item.page.friendly_title
     txt += item.page.text
     txt, numsubs = re.subn(
-        "(=+\s*Einzelnachweise?\s*=+|<references\s*\/>)", "", txt)
+        u"(=+\s*Einzelnachweise?\s*=+|<references\s*\/>)", u"", txt)
     if numsubs > 0:
         found_references = True
     return txt, found_references
@@ -21,7 +22,7 @@ def get_pagetext_from_item(item, found_references):
 
 def get_book_src(book):
     found_references = False
-    txt = ''
+    txt = u''
     for item in book.toc:
         if item.depth > 1:
             continue
@@ -29,13 +30,13 @@ def get_book_src(book):
         txt += ptxt
 
     if found_references:
-        txt += "= Einzelnachweise =\n<references/>\n\n"
+        txt += u"= Einzelnachweise =\n<references/>\n\n"
 
     return txt
 
 
 def book_exports(exportkeys, exportkwargs):
-    '''Run exports specified by exportkeys for a book.
+    u'''Run exports specified by exportkeys for a book.
 
         Args:
             site (Site): Mwclient site object
@@ -44,7 +45,7 @@ def book_exports(exportkeys, exportkwargs):
     '''
     errors = []
     for exportkey in exportkeys:
-        Export = getattr(export, exportkey.upper()+"Export")
+        Export = getattr(export, exportkey.upper()+u"Export")
         errors += Export(**exportkwargs).errors
     return errors
 
@@ -53,26 +54,26 @@ class PublishAction(BookAction):
 
     def validate(self):
         site = self.login()
-        if self.conf.export == ['all']:
+        if self.conf.export == [u'all']:
             self.conf.export = EXPORTKEYS
         if not set(self.conf.export).issubset(EXPORTKEYS):
             self.errors.append(
-                "%s is not a subset of %s" % (self.conf.export, EXPORTKEYS))
-        super().validate(site)
+                u"%s is not a subset of %s" % (self.conf.export, EXPORTKEYS))
+        super(PublishAction, self).validate(site)
 
     def run(self):
         self.site = self.login()
-        if "print" in self.conf.export:
+        if u"print" in self.conf.export:
             export.PRINTExport.print_version_title = self.conf.printpage_title
 
         kwargs = {
-            'site': self.site,
-            'overwrite': self.conf.force_overwrite or self.conf.version == 'live',
-            'title': self.book.book_page.title,
-            'friendly_title': self.book.book_page.friendly_title,
-            'src': get_book_src(self.book),
-            'info': self.book.info,
-            'tmp_path': self.conf.tmp_path,
+            u'site': self.site,
+            u'overwrite': self.conf.force_overwrite or self.conf.version == u'live',
+            u'title': self.book.book_page.title,
+            u'friendly_title': self.book.book_page.friendly_title,
+            u'src': get_book_src(self.book),
+            u'info': self.book.info,
+            u'tmp_path': self.conf.tmp_path,
         }
         #print("KWARGS", kwargs)
         self.errors += book_exports(self.conf.export, kwargs)

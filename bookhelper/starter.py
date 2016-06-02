@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from bookhelper import on_no_errors
 from bookhelper.cmds import publish, versionize, status, create, importer
 
@@ -5,11 +6,11 @@ from bookhelper.cmds import publish, versionize, status, create, importer
 class Starter(object):
 
     command_mapping = {
-        "publish": publish.PublishAction,
-        "versionize": versionize.VersionizeAction,
-        "status": status.StatusAction,
-        "create": create.CreateAction,
-        "import": importer.ImportAction,
+        u"publish": publish.PublishAction,
+        u"versionize": versionize.VersionizeAction,
+        u"status": status.StatusAction,
+        u"create": create.CreateAction,
+        u"import": importer.ImportAction,
     }
 
     def __init__(self, conf):
@@ -20,12 +21,12 @@ class Starter(object):
     def start(self):
         self.action.validate()
         self.errors += self.action.errors
-        res = "FAILED"
+        res = u"FAILED"
         if not self.errors:
             res = self.run_cmd()
         if not self.errors:
             if not res:
-                res = "SUCCESS"
+                res = u"SUCCESS"
         return res
 
     @on_no_errors
@@ -35,7 +36,7 @@ class Starter(object):
 
     def run_cmd(self):
         import sys
-        sys.argv.append('--db-path=%s' % (self.conf.tmp_path))
+        sys.argv.append(u'--db-path=%s' % (self.conf.tmp_path))
         #sys.exit(str(sys.argv))
         if self.conf.queued:
             from bookhelper.celeryapp import async_action

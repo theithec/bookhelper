@@ -1,4 +1,5 @@
 
+from __future__ import absolute_import
 from unittest import TestCase
 # from unittest import mock
 
@@ -14,31 +15,31 @@ class PageMock(object):
         return self._text
 
     def revisions(self, **kwargs):
-        return[{'*':  self._text}]
+        return[{u'*':  self._text}]
 
 
 class SiteMock(object):
     def __init__(self):
-        self.host = ""
+        self.host = u""
         self.Pages = {
-            'Page1': PageMock(
-                '''Text1
+            u'Page1': PageMock(
+                u'''Text1
                 <div class="BookTOC">
 # [[A|A]]
 # [[B_2|B]]
                 </div>
                 '''),
-            'A': PageMock("A Text"),
-            'B_2': PageMock("B Text"),
+            u'A': PageMock(u"A Text"),
+            u'B_2': PageMock(u"B Text"),
         }
 
     def api(self, action, **kwargs):
-        if action == "query":
+        if action == u"query":
             return {
-                'query': {
-                    'pages':{
-                        '1':    {
-                            'flagged': {'stable_revid': "1"}
+                u'query': {
+                    u'pages':{
+                        u'1':    {
+                            u'flagged': {u'stable_revid': u"1"}
                         }
                     }
                 }
@@ -54,14 +55,14 @@ class TestInit(TestCase):
 
     def test_x(self):
 
-        book = Book(self.site, "Page1", "live")
-        self.assertEqual(book.book_page.title, "Page1")
-        self.assertEqual(book.book_page.text.strip(), '''Text1
+        book = Book(self.site, u"Page1", u"live")
+        self.assertEqual(book.book_page.title, u"Page1")
+        self.assertEqual(book.book_page.text.strip(), u'''Text1
                 <div class="BookTOC">
 # [[A|A]]
 # [[B_2|B]]
                 </div>''')
-        self.assertEqual(book.toc[0].target,'A')
-        self.assertEqual(book.toc[1].target,'B_2')
-        self.assertEqual(book.toc[1].page.friendly_title,'B 2')
+        self.assertEqual(book.toc[0].target,u'A')
+        self.assertEqual(book.toc[1].target,u'B_2')
+        self.assertEqual(book.toc[1].page.friendly_title,u'B 2')
         self.assertEqual(book.errors,[])

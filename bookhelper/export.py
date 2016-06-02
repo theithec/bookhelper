@@ -1,8 +1,11 @@
-'''export.py
+# -*- coding: utf-8 -*-
+u'''export.py
 
 The actions to create different formats from a handbuch.io-`book` live here
 
 '''
+from __future__ import with_statement
+from __future__ import absolute_import
 import os
 from os.path import abspath, dirname, isfile
 import sys
@@ -12,6 +15,7 @@ import pypandoc
 from bs4 import BeautifulSoup
 
 from .utils import get_siteurl
+from io import open
 
 
 class Export(object):
@@ -37,14 +41,14 @@ class Export(object):
 
 
 class PRINTExport(Export):
-    print_version_title = "_Printversion"
+    print_version_title = u"_Printversion"
 
     def _create(self):
-        title = '%s/%s' % (self.title, self.print_version_title)
-        logging.debug("Printversion title: %s" % (title))
+        title = u'%s/%s' % (self.title, self.print_version_title)
+        logging.debug(u"Printversion title: %s" % (title))
         printpage = self.site.Pages[title]
         if not self.overwrite and printpage.text():
-            self.errors.append('Page "%s" already exists' % title)
+            self.errors.append(u'Page "%s" already exists' % title)
             return
 
         printpage.save(self.src)
@@ -54,31 +58,31 @@ class PandocExport(Export):
 
     def prestart(self):
         self.outfilename = (
-            "%s.%s" % (self.title, self.outformat)
-        ).replace("/", "_")
+            u"%s.%s" % (self.title, self.outformat)
+        ).replace(u"/", u"_")
         self.outpath = os.path.join(self.tmp_path, self.outfilename)
         if not self.overwrite and isfile(self.outpath):
-            self.errors.append('File "%s" already exists' % self.outfilename)
+            self.errors.append(u'File "%s" already exists' % self.outfilename)
             return
 
-        os.environ["HOME"] = self.tmp_path  # pandoc needs a $HOME
+        os.environ[u"HOME"] = self.tmp_path  # pandoc needs a $HOME
         self.start()
 
     def get_pandoc_params(self):
         args = [self.get_soup().prettify(), self.outformat]
         kwargs = {
-            'format': 'html',
+            'format': u'html',
             'outputfile': self.outpath}
         return args, kwargs
 
     def get_soup(self):
         result = self.site.api(
-            "parse", text=self.src)
-        txt = result['parse']['text']['*']
-        soup = BeautifulSoup(txt, 'html.parser')
-        [x.extract() for x in soup.findAll('span', class_="mw-editsection")]
+            u"parse", text=self.src)
+        txt = result[u'parse'][u'text'][u'*']
+        soup = BeautifulSoup(txt, u'html.parser')
+        [x.extract() for x in soup.findAll(u'span', class_=u"mw-editsection")]
         # One idea was to use a custom toc. Delete the old one:
-        toc = soup.find('div', attrs={'id': 'toc'})
+        toc = soup.find(u'div', attrs={u'id': u'toc'})
         if toc:
             toc.extract()
 
@@ -90,44 +94,44 @@ class PandocExport(Export):
         # so we copy those ids to their parents (the real headline tag)
         # before deleting
         for tag in soup():
-            c = tag.get('class')
-            if c and "mw-headline" in c:
-                i = tag.get("id")
-                tag.parent['id'] = i
+            c = tag.get(u'class')
+            if c and u"mw-headline" in c:
+                i = tag.get(u"id")
+                tag.parent[u'id'] = i
 
-            del tag['id']
+            del tag[u'id']
 
-            c = tag.get('src')
-            if c and c.startswith("/"):
-                tag['src'] = "".join((site_url, c),)
+            c = tag.get(u'src')
+            if c and c.startswith(u"/"):
+                tag[u'src'] = u"".join((site_url, c),)
 
-        with open(os.path.join(self.tmp_path, "src.html"), "w") as f:
-            f.write(str(soup.prettify().encode("utf-8")))
+        with open(os.path.join(self.tmp_path, u"src.html"), u"w") as f:
+            f.write(soup.prettify()) #.encode("utf-8")))
 
         return soup
 
     def upload(self):
-        msg = '%s: "%s" als %s' % (
-            datetime.now().strftime("%Y-%M-%d %h:%M"),
+        msg = u'%s: "%s" als %s' % (
+            datetime.now().strftime(u"%Y-%M-%d %h:%M"),
             self.friendly_title,
             self.outformat)
-        outfile = open(self.outpath, "rb")
+        outfile = open(self.outpath, u"rb")
         try:
             res = self.site.upload(
                 outfile, self.outfilename, msg, ignore=True)
         except:
-            self.errors.append(str("UPLOAD-ERROR: " + str(sys.exc_info())))
+            self.errors.append(unicode(u"UPLOAD-ERROR: " + unicode(sys.exc_info())))
             return
 
-        if res['result'] != "Success":
-            self.errors.append("Upload failed for %s" % self.outfilename)
+        if res[u'result'] != u"Success":
+            self.errors.append(u"Upload failed for %s" % self.outfilename)
 
     def _create(self):
         args, kwargs = self.get_pandoc_params()
         try:
             pypandoc.convert(*args, **kwargs)
         except:
-            self.errors.append(str("PANDOC-ERROR: " + str(sys.exc_info())))
+            self.errors.append(unicode(u"PANDOC-ERROR: " + unicode(sys.exc_info())))
             return
 
         self.upload()
@@ -137,8 +141,8 @@ class PDFExport(PandocExport):
     outformat = "pdf"
 
     def get_pandoc_params(self):
-        args, kwargs = super().get_pandoc_params()
-        kwargs['extra_args'] = [
+        args, kwargs = super(PDFExport, self).get_pandoc_params()
+        kwargs[u'extra_args'] = [
             '--latex-engine=xelatex',
             '--chapters',
             #'--verbose',
@@ -146,21 +150,21 @@ class PDFExport(PandocExport):
             '--toc',
             '--template=%s/template.latex' % dirname(abspath(__file__)),
             # '-M', 'documentclass=book',
-            '-M', 'author="%s"' % self.info.get(
-                "AUTOREN",
-                self.info.get("HERAUSGEBER", "")),
-            '-M', 'include-before="Wichtige Hinweise"',
-            '-M', 'subtitle="%s"' % self.info.get("ABSTRACT"),
-            '-M', 'lang="german"',
-            '-M', 'mainlang="german"',
-            '-M', 'title="%s"' % self.friendly_title
+            '-M', u'author="%s"' % self.info.get(
+                u"AUTOREN",
+                self.info.get(u"HERAUSGEBER", u"")),
+            '-M', u'include-before="Wichtige Hinweise"',
+            '-M', u'subtitle="%s"' % self.info.get(u"ABSTRACT"),
+            '-M', u'lang="german"',
+            '-M', u'mainlang="german"',
+            '-M', u'title="%s"' % self.friendly_title
         ]
         return args, kwargs
 
 
 class ODTExport(PandocExport):
-    outformat = "odt"
+    outformat = u"odt"
 
 
 class MARKDOWNExport(PandocExport):
-    outformat = "markdown"
+    outformat = u"markdown"

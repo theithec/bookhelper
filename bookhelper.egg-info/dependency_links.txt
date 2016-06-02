@@ -1,0 +1,1 @@
+https://github.com/inveniosoftware/datacite/archive/master.zip#egg=datacite-0.2.1
