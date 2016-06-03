@@ -8,7 +8,6 @@ from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
 from os import path
-from io import open
 
 here = path.abspath(path.dirname(__file__))
 
@@ -54,10 +53,10 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        u'Programming Language :: Python :: 3',
+        u'Programming Language :: Python :: 2',
         # 'Programming Language :: Python :: 3.3',
         # 'Programming Language :: Python :: 3.4',
-        u'Programming Language :: Python :: 3.5',
+        u'Programming Language :: Python :: 2.7',
     ],
 
     # What does your project relate to?
@@ -76,21 +75,21 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        u"beautifulsoup4==4.4.1",
-        u"mwclient==0.8.1",
-        u"pypandoc==1.1.3",
-        u"requests==2.9.1",
-        u"six==1.10.0",
-        u"SQLAlchemy==1.0.12",
-        u"celery==3.1.23",
-        u"pypandoc==1.1.3",
-        u"datacite>=0.2.1",
-        u"PyYAML==3.11",
-        u"eventlet==0.19.0",
+        "beautifulsoup4==4.4.1",
+        "mwclient==0.8.1",
+        "pypandoc==1.1.3",
+        "requests==2.9.1",
+        "six==1.10.0",
+        "SQLAlchemy==1.0.12",
+        "celery==3.1.23",
+        "pypandoc==1.1.3",
+        "datacite>=0.2.999",
+        "PyYAML==3.11",
+        "eventlet==0.19.0",
 
     ],
      dependency_links=[
-         u"https://github.com/inveniosoftware/datacite/archive/master.zip#egg=datacite-0.2.1",
+         "https://github.com/theithec/datacite/archive/master.zip#egg=datacite-0.2.999",
      ],
 
     # List additional groups of dependencies here (e.g. development

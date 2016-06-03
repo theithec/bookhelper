@@ -1,3 +1,0 @@
-[console_scripts]
-bookhelper = bookhelper.__main__:main
-

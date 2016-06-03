@@ -3,7 +3,7 @@ import random
 import string
 from datetime import datetime
 from datacite import DataCiteMDSClient, schema31
-from datacite.errors import DataCiteServerError
+from datacite.errors import DataCiteError
 
 
 class BookDoi(object):
@@ -25,7 +25,7 @@ class BookDoi(object):
             doc = self.client.metadata_get(doi)
             # self.errors.append('Doi "%s" already exists' % self.doi)
             return self.find_free_doi()
-        except DataCiteServerError, e:
+        except DataCiteError, e:
             if e.error_code != 404:
                 self.errors.append(
                     u'Not the expected result from MDS while validation: %s' % e)

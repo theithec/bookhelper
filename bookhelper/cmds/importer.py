@@ -44,13 +44,13 @@ class ImportAction(Action):
     def mk_pages(self):
         self.pagesdata = []
         for fname in self.files:
-            if not (fname.endswith(u".md" or fname.endswith(u".markdown"))):
+            if not (fname.endswith(".md" or fname.endswith(".markdown"))):
                 continue
             with open(os.path.join(self.source_path, fname)) as f:
                 md = f.read()
                 body = pypandoc.convert(md, u"mediawiki", format=u"md")
-                title = fname.split(u"-", maxsplit=1)[-1]  # rm "01-" ...
-                title = title.rsplit(u".", maxsplit=1)[0]  # rm filetype
+                title = fname.split("-", 1)[-1]  # rm "01-" ...
+                title = title.rsplit(".",1)[0]  # rm filetype
                 p = {
                     u'title': title,
                     u'body': body
