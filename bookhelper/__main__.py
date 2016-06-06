@@ -116,6 +116,8 @@ def main():
     parser_import = subparsers.add_parser('import', help='import --help')
     parser_import.add_argument("source_path", help="Path to source path")
 
+    parser_setup = subparsers.add_parser('setup', help='setup --help')
+
     args = parser.parse_args()
     if args.conf:
         merge_config(args)

@@ -1,5 +1,6 @@
 from bookhelper import on_no_errors
-from bookhelper.cmds import publish, versionize, status, create, importer
+from bookhelper.cmds import (
+    publish, versionize, status, create, importer, setup)
 
 
 class Starter(object):
@@ -10,6 +11,7 @@ class Starter(object):
         "status": status.StatusAction,
         "create": create.CreateAction,
         "import": importer.ImportAction,
+        "setup": setup.SetupAction,
     }
 
     def __init__(self, conf):
