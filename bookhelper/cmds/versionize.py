@@ -11,17 +11,13 @@ from . import BookAction
 class VersionizeAction(BookAction):
     def validate(self):
         if not self.conf.no_doi:
-            args = ["dc_symbol", "dc_password", "dc_prefix", "dc_identifier", ]
-            for arg in args:
-                if getattr(self.conf, arg, None) is None:
-                    self.errors.append("Missing argument: %s" % arg)
-
             bookdoi = doi.BookDoi(self.conf)
             bookdoi.validate()
             if not bookdoi.errors:
                 self.doi = bookdoi.doi
-            self.errors += bookdoi.errors
-
+        self.errors += bookdoi.errors
+        if self.errors:
+            return
         site = self.login()
         super().validate(site)
 
