@@ -53,9 +53,14 @@ class PRINTExport(Export):
 class PandocExport(Export):
 
     def prestart(self):
-        self.outfilename = (
-            "%s.%s" % (self.title, self.outformat)
-        ).replace("/", "_")
+        self.outfilename = self.title
+        if "/" in self.outfilename:
+            self.outfilename = self.outfilename.replace("/", "_")
+        else:
+            self.outfilename += "_live"
+
+
+        self.outfilename += "." + self.outformat
         self.outpath = os.path.join(self.tmp_path, self.outfilename)
         if not self.overwrite and isfile(self.outpath):
             self.errors.append('File "%s" already exists' % self.outfilename)

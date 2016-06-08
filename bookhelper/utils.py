@@ -55,8 +55,7 @@ def template_from_info(info):
     t = u"{{Bookinfo\n"
     info = dict([(k.upper(), v) for k,v in info.items()])
     for key in ['ABSTRACT', 'AUTOREN', 'HERAUSGEBER', 'KONTRIBUTOREN',
-                'STAND', 'DOI']:
-        key = key.upper()
+                'STAND', 'DOI', 'VERSION', 'TITLE']:
 
         if key in info:
             t += u"|%s = %s\n" % (key, info[key])

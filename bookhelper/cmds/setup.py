@@ -22,37 +22,44 @@ class SetupAction(Action):
         else:
             bookinfo.save("""
 <includeonly>{|
-    {{#if:{{{ABSTRACT|}}}|
-        {{!}} colspan="2" {{!}} {{{ABSTRACT}}}
-    }}
-    |-
-    {{#if:{{{AUTOREN|}}}|
-        {{!}} '''Autoren:'''
-        {{!}} {{{AUTOREN}}}
-    }}
-    |-
-    {{#if:{{{HERAUSGEBER|}}}|
-        {{!}} '''Herausgeber:'''
-        {{!}} {{{HERAUSGEBER}}}
-    }}
-    |-
-    {{#if:{{{KONTRIBUTOREN|}}}|
-        {{!}} '''Kontributoren:'''
-        {{!}} {{{KONTRIBUTOREN}}}
-    }}
+{{#if:{{{ABSTRACT|}}}|
+    {{!}} colspan="2" {{!}} {{{ABSTRACT}}}
+}}
+|-
+{{#if:{{{AUTOREN|}}}|
+    {{!}} '''Autoren:'''
+    {{!}} {{{AUTOREN}}}
+}}
+|-
+{{#if:{{{HERAUSGEBER|}}}|
+    {{!}} '''Herausgeber:'''
+    {{!}} {{{HERAUSGEBER}}}
+}}
+|-
+{{#if:{{{KONTRIBUTOREN|}}}|
+    {{!}} '''Kontributoren:'''
+    {{!}} {{{KONTRIBUTOREN}}}
+}}
+|-
+{{#if:{{{STAND|}}} |
+    {{!}} '''Stand:'''
+    {{!}} {{{STAND}}}
+}}
+|-
+{{#if:{{{DOI|}}} |
+    {{!}} '''Doi:'''
+    {{!}} {{{DOI}}}
+}}
+|-
+{{#if:{{{VERSION|}}} |
+    {{!}} '''Version:'''
+    {{!}} {{{VERSION}}}
+}}
+|}
 
-    |-
-    {{#if:{{{STAND|}}} |
-        {{!}} '''Stand:'''
-        {{!}} {{{STAND}}}
-    }}
+Zur [[{{PAGENAME}}/_Druckversion|Druckversion]] (alle Kapitel des Buches auf einer Seite).
 
-    |}
-
-    Zur [[{{PAGENAME}}/_Druckversion|Druckversion]] (alle Kapitel des Buches auf einer Seite).
-
-    [[Datei:{{PAGENAME}}.pdf|PDF-Version herunterladen]]
-
+[[Datei:{{{TITLE}}}_ {{{VERSION}}}.pdf|PDF-Version herunterladen]]
 
 </includeonly>
 <noinclude>

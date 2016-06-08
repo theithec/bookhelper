@@ -43,6 +43,7 @@ class BookDoi(object):
         self.doi = self.find_free_doi()
 
 
+
     def _book_metadata(self):
         data = {
             'identifier': {

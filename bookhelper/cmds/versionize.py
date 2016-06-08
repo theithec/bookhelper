@@ -28,6 +28,11 @@ class VersionizeAction(BookAction):
         doi = getattr(self, 'doi', None)
         if doi:
             self.book.info['DOI'] = doi
+
+        self.book.info['version'] = self.conf.version
+        self.book.info['title'] = self.book.book_page.title
+
+        #import pdb; pdb.set_trace()
         return utils.template_from_info(self.book.info)
 
     def versionized_bookpage_text(self):
