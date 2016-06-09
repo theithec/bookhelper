@@ -15,6 +15,7 @@ import os.path
 import yaml
 import json
 import pypandoc
+from jinja2 import Environment, FileSystemLoader
 from . import Action
 from .create import CreateAction
 
@@ -39,20 +40,29 @@ class ImportAction(Action):
         self.source_path = spath
 
     def mk_pages(self):
+        env = Environment(loader=FileSystemLoader(searchpath=self.source_path))
+        templatenames = sorted(env.list_templates("md"))
+        vars_dict = {}
+        try:
+            with open(os.path.join(self.source_path, "vars.json")) as vars_json:
+                vars_dict = json.load(vars_json)
+        except Exception as e:
+            import sys
+            sys.exit(e)
+            pass
+
         self.pagesdata = []
-        for fname in self.files:
-            if not (fname.endswith(".md" or fname.endswith(".markdown"))):
-                continue
-            with open(os.path.join(self.source_path, fname)) as f:
-                md = f.read()
-                body = pypandoc.convert(md, "mediawiki", format="md")
-                title = fname.split("-", maxsplit=1)[-1]  # rm "01-" ...
-                title = title.rsplit(".", maxsplit=1)[0]  # rm filetype
-                p = {
-                    'title': title,
-                    'body': body
-                }
-                self.pagesdata.append(p)
+        for templatename in templatenames:
+            template = env.get_template(templatename)
+            md = template.render(vars_dict)
+            body = pypandoc.convert(md, "mediawiki", format="md")
+            title = templatename.split("-", maxsplit=1)[-1]  # rm "01-" ...
+            title = title.rsplit(".", maxsplit=1)[0]  # rm filetype
+            p = {
+                'title': title,
+                'body': body
+            }
+            self.pagesdata.append(p)
 
     def mk_info(self):
         with open(os.path.join(self.source_path, 'title.txt')) as f:
@@ -71,9 +81,6 @@ class ImportAction(Action):
         self.errors += ca.errors
 
     def run(self):
-        files = os.listdir(self.source_path)
-        files.pop(files.index('title.txt'))
-        self.files = sorted(files)
         self.title = os.path.basename(os.path.abspath(self.source_path))
         self.mk_pages()
         self.mk_info()

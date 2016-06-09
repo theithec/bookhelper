@@ -19,7 +19,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.3.0',
+    version='0.3.1',
 
     description='Creates versions and files from a couple of mediawiki pages',
     long_description=long_description,
@@ -84,7 +84,7 @@ setup(
         "datacite>=0.2.999",
         "PyYAML==3.11",
         "eventlet==0.19.0",
-
+        "Jinja2==2.8"
     ],
      dependency_links=[
          "https://github.com/inveniosoftware/datacite/archive/master.zip#egg=datacite-0.2.999",
