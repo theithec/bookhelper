@@ -12,7 +12,7 @@ from .utils import (parse_tocline, tocline_external_links_re,
                     tocline_internal_links_re, parse_template_text,
                     on_no_errors, get_siteurl)
 
-EXPORTKEYS = ['pdf', 'print', 'odt']
+EXPORTKEYS = ['pdf', 'print', 'odt', 'epub']
 
 
 
@@ -98,7 +98,7 @@ class LiveBookTocItem(BaseBookTocItem):
         if self.is_valid and not book.errors:
             self.stable_link = (
                 '<span class="plainlinks">' +
-                '[{0.page.fullurl} | {0.text}]'.format(self) +
+                '[{0.page.fullurl} {0.text}]'.format(self) +
                 '</span>')
 
     def _title(self):

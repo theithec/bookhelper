@@ -74,6 +74,20 @@ class PandocExport(Export):
         kwargs = {
             'format': 'html',
             'outputfile': self.outpath}
+        kwargs['extra_args'] = [
+            '--chapters',
+            #'--verbose',
+            '--standalone',
+            '--toc',
+            '-M', 'author="%s"' % self.info.get(
+                "AUTOREN",
+                self.info.get("HERAUSGEBER", "")),
+            '-M', 'include-before="Wichtige Hinweise"',
+            '-M', 'subtitle="%s"' % self.info.get("ABSTRACT"),
+            '-M', 'lang="german"',
+            '-M', 'mainlang="german"',
+            '-M', 'title="%s"' % self.friendly_title,
+        ]
         return args, kwargs
 
     def get_soup(self):
@@ -145,20 +159,7 @@ class PDFExport(PandocExport):
         args, kwargs = super().get_pandoc_params()
         kwargs['extra_args'] = [
             '--latex-engine=xelatex',
-            '--chapters',
-            #'--verbose',
-            '--standalone',
-            '--toc',
             '--template=%s/template.latex' % dirname(abspath(__file__)),
-            # '-M', 'documentclass=book',
-            '-M', 'author="%s"' % self.info.get(
-                "AUTOREN",
-                self.info.get("HERAUSGEBER", "")),
-            '-M', 'include-before="Wichtige Hinweise"',
-            '-M', 'subtitle="%s"' % self.info.get("ABSTRACT"),
-            '-M', 'lang="german"',
-            '-M', 'mainlang="german"',
-            '-M', 'title="%s"' % self.friendly_title
         ]
         return args, kwargs
 
@@ -169,3 +170,18 @@ class ODTExport(PandocExport):
 
 class MARKDOWNExport(PandocExport):
     outformat = "markdown"
+
+class EPUBExport(PandocExport):
+    outformat = "epub"
+
+    def get_pandoc_params2(self):
+        args, kwargs = super().get_pandoc_params()
+        kwargs['extra_args'] = [
+            '--standalone',
+            '--toc',
+            #'--variable', 'title=DER TTITEL',
+            #'--variable', 'author=Icke und er',
+            '-M', 'title=DERi TTITEL',
+            '-M', 'author=Ick2e und er',
+        ]
+        return args, kwargs
