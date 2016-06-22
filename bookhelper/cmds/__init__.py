@@ -33,7 +33,6 @@ class Action(object):
         else:
             site_arg = self.conf.api_url
 
-        # @todo handle exceptions
         try:
             site = mwclient.Site(site_arg)
         except Exception as e:
@@ -42,8 +41,9 @@ class Action(object):
         return site
 
     @on_no_errors
-    def login(self):
-        site = self.get_site()
+    def login(self, site = None):
+
+        site = site or self.get_site()
         try:
             site.login(self.conf.user, self.conf.password)
         except Exception as e:
@@ -56,9 +56,8 @@ class BookAction(Action):
     def build_book(self, site):
         self.book = Book(site, self.conf.book, self.conf.version)
 
-    #def validate(self, site):
-    def validate(self):
-        site = self.login()
+    def validate(self, site=None):
+        site = self.login(site)
         if site:
             self.build_book(site)
             self.errors += self.book.errors

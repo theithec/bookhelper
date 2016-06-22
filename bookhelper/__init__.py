@@ -26,7 +26,6 @@ class StablePage(object):
         self.title = title
         self.friendly_title = self.title.replace("_", " ")
         _wrapped_page = site.Pages[title]
-
         if not _wrapped_page.text():
             book.errors.append(
                 'No Page with this title was found: "%s"' % self.title)
@@ -74,10 +73,6 @@ class BaseBookTocItem(object):
             self.depth, link_parts = parse_tocline(line, self.item_re)
         except AttributeError:
             book.errors.append("Can't parse toc-line: %s" % line)
-            print(self.__class__)
-            print(self.item_re)
-            import sys
-            sys.exit(line)
             return
         self.target = link_parts[0].replace(" ", "_")
         if "#" in self.target:

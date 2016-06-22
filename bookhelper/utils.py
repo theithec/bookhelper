@@ -25,9 +25,9 @@ def get_siteurl(site):
 
 def on_no_errors(meth):
     '''Decorator for methods in classes with an error attribute.'''
-    def inner(*args):
+    def inner(*args, **kwargs):
         if not args[0].errors:
-            return meth(*args)
+            return meth(*args, **kwargs)
     return inner
 
 

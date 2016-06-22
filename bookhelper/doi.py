@@ -8,6 +8,8 @@ from datacite.errors import DataCiteServerError
 
 class BookDoi(object):
 
+    test_mode = False
+
     def __init__(self, conf, book):
         self.errors = []
         self.conf = conf
@@ -32,18 +34,14 @@ class BookDoi(object):
             'username': self.conf.dc_symbol,
             'password': self.conf.dc_password,
             'prefix': self.conf.dc_prefix,
-            'test_mode': False
+            'test_mode': self.test_mode
         }
         self.client = DataCiteMDSClient(**self.datacite_kwargs)
         self.doi = self.find_free_doi()
-        data = self.get_book_metadata()
-        try:
-            self.doc = schema31.tostring(data)
-        except DataCiteServerError as e:
-                self.errors.append(e)
 
     def get_book_metadata(self):
-        print(self.book.info)
+        publisher =  self.book.info.get('HERAUSGEBER', None) or \
+                self.book.info['AUTOREN']
         data = {
             'identifier': {
                 'identifier': self.doi,
@@ -53,8 +51,7 @@ class BookDoi(object):
             'titles': [
                 {'title': self.book.book_page.friendly_title}
             ],
-            'publisher': self.book.info.get(
-                'HERAUSGEBER', self.book.info['AUTOREN']),
+            'publisher': publisher,
             'publicationYear': str(datetime.now().year),
             'version': str(self.conf.version)
         }
@@ -66,7 +63,7 @@ class BookDoi(object):
 
     def get_creators_list(self):
         creators = []
-        for title in ['AUTOREN', 'KONTRIBUTOREN', ]:
+        for title in ['AUTOREN', 'HERAUSGEBER', 'KONTRIBUTOREN', ]:
             namesstr = self.book.info.get(title, "")
             dicts = [
                 {'creatorName': name.strip()}
@@ -74,13 +71,20 @@ class BookDoi(object):
                 if name.strip()
             ]
             creators += [d for d in dicts if d]
-            return creators
 
-    def set_doi(self, url, doi, doc, datacite_kwargs):
+        return creators
+
+    def set_doi(self, url, doi, datacite_kwargs):
+        self.doi = doi
+        data = self.get_book_metadata()
+        try:
+            doc = schema31.tostring(data)
+        except DataCiteServerError as e:
+                self.errors.append(e)
         client = DataCiteMDSClient(**datacite_kwargs)
         res = client.metadata_post(doc)
-        print(res)
         if not res.startswith("OK"):
             self.errors.append(res)
             return
-        client.doi_post(doi, url)
+        if not (self.test_mode or "handbuch.local" in url):
+            client.doi_post(doi, url)

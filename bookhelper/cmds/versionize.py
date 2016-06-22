@@ -9,17 +9,17 @@ from . import BookAction
 
 
 class VersionizeAction(BookAction):
-    def validate(self):
-        super().validate()
+    def validate(self, site=None):
+        super().validate(site)
         if not self.conf.no_doi:
             #import sys; sys.exit(self.conf)
             bookdoi = doi.BookDoi(self.conf, self.book )
             bookdoi.validate()
             if not bookdoi.errors:
                 self.doi = bookdoi.doi
-                self.doidoc = bookdoi.doc
                 self.datacite_kwargs = bookdoi.datacite_kwargs
-        self.errors += bookdoi.errors
+
+            self.errors += bookdoi.errors
 
     def build_book(self, site):
         self.book = Book(site, self.conf.book, "live")
@@ -50,10 +50,10 @@ class VersionizeAction(BookAction):
         content.replaceWith(stable_content)
         return soup.decode(formatter=None)
 
-    def run(self):
+    def run(self, site=None):
         version_page_txt = self.versionized_bookpage_text()
         pagetitle = '%s/%s' % (self.book.book_page.title, self.conf.version)
-        self.site = self.login()
+        self.site = site or self.login()
         version_page = self.site.Pages[pagetitle]
         #result = site.api('parsegtgt', prop='coordinates', titles='Oslo|Copenhagen')
         if version_page.text() and not self.conf.force_overwrite:
@@ -65,5 +65,4 @@ class VersionizeAction(BookAction):
                                     inprop="url")
                 fullurl = list(result['query']['pages'].values())[0]['fullurl']
                 bookdoi = doi.BookDoi(self.conf, self.book)
-                bookdoi.set_doi(fullurl, self.doi, self.doidoc,
-                                self.datacite_kwargs)
+                bookdoi.set_doi(fullurl, self.doi, self.datacite_kwargs)

@@ -51,19 +51,18 @@ def book_exports(exportkeys, exportkwargs):
 
 class PublishAction(BookAction):
 
-    def validate(self):
-        super().validate()
+    def validate(self, site=None):
+        super().validate(site)
         if self.conf.export == ['all']:
             self.conf.export = EXPORTKEYS
         if not set(self.conf.export).issubset(EXPORTKEYS):
             self.errors.append(
                 "%s is not a subset of %s" % (self.conf.export, EXPORTKEYS))
 
-    def run(self):
-        self.site = self.login()
+    def run(self, site=None):
+        self.site = self.login(site=site)
         if "print" in self.conf.export:
             export.PRINTExport.print_version_title = self.conf.printpage_title
-
         kwargs = {
             'site': self.site,
             'overwrite': self.conf.force_overwrite or self.conf.version == 'live',

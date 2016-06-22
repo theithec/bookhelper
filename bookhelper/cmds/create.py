@@ -20,7 +20,7 @@ from bookhelper.utils import template_from_info, on_no_errors
 
 class CreateAction(Action):
 
-    def validate(self):
+    def validate(self, site=None):
         jsrc = getattr(self.conf, "json_source", None)
         if not jsrc:
             self.errors.append("No json source")
@@ -39,7 +39,9 @@ class CreateAction(Action):
     @on_no_errors
     def save_page(self, title, content):
         logging.debug("Try save page: %s" % title)
+        logging.debug("conf: %s" % self.conf.__dict__)
         page = self.site.Pages[title]
+
         if page.text() and not self.conf.force_overwrite:
             self.errors.append("Page already exists: %s" % page)
             return
@@ -81,8 +83,8 @@ class CreateAction(Action):
         txt += "\n[[Kategorie:Buch]]"
         self.save_page(self.title, txt)
 
-    def run(self):
-        self.site = self.login()
+    def run(self, site=None):
+        self.site = site or self.login()
         self.title = self.bookdata['title']
         self.pages = self.bookdata['pages']
         self.book_page = self.mk_book_page()
