@@ -52,13 +52,12 @@ def book_exports(exportkeys, exportkwargs):
 class PublishAction(BookAction):
 
     def validate(self):
-        site = self.login()
+        super().validate()
         if self.conf.export == ['all']:
             self.conf.export = EXPORTKEYS
         if not set(self.conf.export).issubset(EXPORTKEYS):
             self.errors.append(
                 "%s is not a subset of %s" % (self.conf.export, EXPORTKEYS))
-        super().validate(site)
 
     def run(self):
         self.site = self.login()

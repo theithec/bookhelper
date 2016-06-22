@@ -56,7 +56,8 @@ class BookAction(Action):
     def build_book(self, site):
         self.book = Book(site, self.conf.book, self.conf.version)
 
-    def validate(self, site):
+    #def validate(self, site):
+    def validate(self):
         site = self.login()
         if site:
             self.build_book(site)

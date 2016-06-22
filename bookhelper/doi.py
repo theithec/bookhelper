@@ -1,28 +1,25 @@
 import random
 import string
 from datetime import datetime
+from jsonschema.exceptions import ValidationError
 from datacite import DataCiteMDSClient, schema31
 from datacite.errors import DataCiteServerError
 
 
 class BookDoi(object):
 
-    def __init__(self, conf):
+    def __init__(self, conf, book):
         self.errors = []
-        # the book is always generated from the "live" version, so we need
-        # the real version
         self.conf = conf
-        #self.version = conf.dc_version
+        self.book = book
 
     def find_free_doi(self):
-
-        r = "".join([random.choice( string.ascii_uppercase + string.digits)
-                for _ in range(5)
-            ])
-        doi = "/".join([ self.conf.dc_identifier,r])
+        r = "".join([random.choice(string.ascii_uppercase + string.digits)
+                    for _ in range(5)])
+        doi = "/".join([self.conf.dc_prefix, self.conf.dc_identifier, r])
         try:
-            doc = self.client.metadata_get(doi)
-            # self.errors.append('Doi "%s" already exists' % self.doi)
+            self.client.metadata_get(doi)
+            #  self.errors.append('Doi "%s" already exists' % self.doi)
             return self.find_free_doi()
         except DataCiteServerError as e:
             if e.error_code != 404:
@@ -30,21 +27,23 @@ class BookDoi(object):
                     'Not the expected result from MDS while validation: %s' % e)
         return doi
 
-
-
     def validate(self):
         self.datacite_kwargs = {
             'username': self.conf.dc_symbol,
             'password': self.conf.dc_password,
             'prefix': self.conf.dc_prefix,
-            'test_mode': True
+            'test_mode': False
         }
         self.client = DataCiteMDSClient(**self.datacite_kwargs)
         self.doi = self.find_free_doi()
+        data = self.get_book_metadata()
+        try:
+            self.doc = schema31.tostring(data)
+        except DataCiteServerError as e:
+                self.errors.append(e)
 
-
-
-    def _book_metadata(self):
+    def get_book_metadata(self):
+        print(self.book.info)
         data = {
             'identifier': {
                 'identifier': self.doi,
@@ -54,11 +53,15 @@ class BookDoi(object):
             'titles': [
                 {'title': self.book.book_page.friendly_title}
             ],
-            'publisher': self.book.info['HERAUSGEBER'],
+            'publisher': self.book.info.get(
+                'HERAUSGEBER', self.book.info['AUTOREN']),
             'publicationYear': str(datetime.now().year),
-            'version': str(self.version)
+            'version': str(self.conf.version)
         }
-        assert schema31.validate(data)
+        try:
+            schema31.validate(data)
+        except ValidationError as e:
+            self.errors.append(str(e))
         return data
 
     def get_creators_list(self):
@@ -66,9 +69,18 @@ class BookDoi(object):
         for title in ['AUTOREN', 'KONTRIBUTOREN', ]:
             namesstr = self.book.info.get(title, "")
             dicts = [
-                {'CreatorName': name.strip()}
+                {'creatorName': name.strip()}
                 for name in namesstr.split(',')
                 if name.strip()
             ]
             creators += [d for d in dicts if d]
             return creators
+
+    def set_doi(self, url, doi, doc, datacite_kwargs):
+        client = DataCiteMDSClient(**datacite_kwargs)
+        res = client.metadata_post(doc)
+        print(res)
+        if not res.startswith("OK"):
+            self.errors.append(res)
+            return
+        client.doi_post(doi, url)

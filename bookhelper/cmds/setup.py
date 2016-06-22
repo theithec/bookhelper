@@ -21,49 +21,19 @@ class SetupAction(Action):
             self.errors.append("Template:Bookinfo already exists")
         else:
             bookinfo.save("""
-<includeonly>{|
-{{#if:{{{ABSTRACT|}}}|
-    {{!}} colspan="2" {{!}} {{{ABSTRACT}}}
+<includeonly>
+{{#tag:bookinfo
+|{{{ABSTRACT}}}
+|contributors="{{{KONTRIBUTOREN}}}"
+|authors="{{{AUTOREN}}}"
+|stand="{{{STAND}}}"
+|doi="{{{DOI}}}"
 }}
-|-
-{{#if:{{{AUTOREN|}}}|
-    {{!}} '''Autoren:'''
-    {{!}} {{{AUTOREN}}}
-}}
-|-
-{{#if:{{{HERAUSGEBER|}}}|
-    {{!}} '''Herausgeber:'''
-    {{!}} {{{HERAUSGEBER}}}
-}}
-|-
-{{#if:{{{KONTRIBUTOREN|}}}|
-    {{!}} '''Kontributoren:'''
-    {{!}} {{{KONTRIBUTOREN}}}
-}}
-|-
-{{#if:{{{STAND|}}} |
-    {{!}} '''Stand:'''
-    {{!}} {{{STAND}}}
-}}
-|-
-{{#if:{{{DOI|}}} |
-    {{!}} '''Doi:'''
-    {{!}} {{{DOI}}}
-}}
-|-
-{{#if:{{{VERSION|}}} |
-    {{!}} '''Version:'''
-    {{!}} {{{VERSION}}}
-}}
-|}
-
-Zur [[{{PAGENAME}}/_Druckversion|Druckversion]] (alle Kapitel des Buches auf einer Seite).
-
-[[Datei:{{{TITLE}}}_ {{{VERSION}}}.pdf|PDF-Version herunterladen]]
-
 </includeonly>
 <noinclude>
 Diese Vorlage erzeugt einen Buchtitel mit Autoren, Kontributen, Abstract und Links zu PDF und Druckversion.
 </noinclude>
-                          """)
+<includeonly>{|
+</includeonly>
+""")
 

@@ -82,8 +82,8 @@ class PandocExport(Export):
             '-M', 'author="%s"' % self.info.get(
                 "AUTOREN",
                 self.info.get("HERAUSGEBER", "")),
-            '-M', 'include-before="Wichtige Hinweise"',
             '-M', 'subtitle="%s"' % self.info.get("ABSTRACT"),
+            '-M', 'include-before="%s"' % self.info.get("ABSTRACT"),
             '-M', 'lang="german"',
             '-M', 'mainlang="german"',
             '-M', 'title="%s"' % self.friendly_title,
@@ -157,7 +157,7 @@ class PDFExport(PandocExport):
 
     def get_pandoc_params(self):
         args, kwargs = super().get_pandoc_params()
-        kwargs['extra_args'] = [
+        kwargs['extra_args'] += [
             '--latex-engine=xelatex',
             '--template=%s/template.latex' % dirname(abspath(__file__)),
         ]
@@ -179,9 +179,5 @@ class EPUBExport(PandocExport):
         kwargs['extra_args'] = [
             '--standalone',
             '--toc',
-            #'--variable', 'title=DER TTITEL',
-            #'--variable', 'author=Icke und er',
-            '-M', 'title=DERi TTITEL',
-            '-M', 'author=Ick2e und er',
         ]
         return args, kwargs
