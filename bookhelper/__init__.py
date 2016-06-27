@@ -144,7 +144,7 @@ class Book(object):
             toctext = soup.find_all("div", class_="BookTOC")[0].text.strip()
         except IndexError:
             self.errors.append(
-                'No Toc found for book "%s"' % self.book_page.title)
+                'No toc found for book "%s"' % self.book_page.title)
             return
         BookTocItemClz = (
             LiveBookTocItem if self.version == "live"

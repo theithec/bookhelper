@@ -113,8 +113,7 @@ class PandocExport(Export):
             if c and "mw-headline" in c:
                 i = tag.get("id")
                 tag.parent['id'] = i
-
-            del tag['id']
+                del tag['id']
 
             c = tag.get('src')
             if c and c.startswith("/"):
@@ -174,10 +173,4 @@ class MARKDOWNExport(PandocExport):
 class EPUBExport(PandocExport):
     outformat = "epub"
 
-    def get_pandoc_params2(self):
-        args, kwargs = super().get_pandoc_params()
-        kwargs['extra_args'] = [
-            '--standalone',
-            '--toc',
-        ]
-        return args, kwargs
+
