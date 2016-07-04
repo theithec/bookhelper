@@ -40,7 +40,7 @@ class BookDoi(object):
         self.doi = self.find_free_doi()
 
     def get_book_metadata(self):
-        publisher =  self.book.info.get('HERAUSGEBER', None) or \
+        publisher = self.book.info.get('HERAUSGEBER', None) or \
                 self.book.info['AUTOREN']
         data = {
             'identifier': {
@@ -86,5 +86,15 @@ class BookDoi(object):
         if not res.startswith("OK"):
             self.errors.append(res)
             return
-        if not (self.test_mode or "handbuch.local" in url):
+        for testurl in [
+            "https://test.osl.tib.eu",
+            "https://develop.osl.tib.eu",
+            "https://handbuch.local",
+
+        ]:
+            if testurl in url:
+                url = url.replace(testurl, "http://handbuch.io")
+
+        if  "handbuch.io" in url and not self.test_mode:
+
             client.doi_post(doi, url)
