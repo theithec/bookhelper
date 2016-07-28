@@ -41,7 +41,6 @@ class VersionizeAction(SiteAction):
                     item.stable_link,  item.text, self.book)
                 ctxt = (
                     (doistr.format(doi=doi)) +
-                    "\n\nxxx\n\n" +
                     soup.decode(formatter=None).strip())
             cpage.save(ctxt)
 

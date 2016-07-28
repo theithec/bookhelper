@@ -16,14 +16,12 @@ class Starter(object):
     def __init__(self, conf):
         self.errors = []
         self.conf = conf
-        #        self.action = self.get_action()
 
     def start(self):
         res = self.run_cmd()
         if not res:
             res = "SUCCESS" if not self.errors else "FAILURE"
         return res
-
 
     def run_cmd(self):
         Action = self.command_mapping[self.conf.cmd]
