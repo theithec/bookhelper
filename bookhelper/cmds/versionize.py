@@ -21,7 +21,7 @@ class VersionizeAction(SiteAction):
             try:
                 rev_id = list(cpage.revisions())[0]['revid']
             except IndexError:
-                import pdb; pdb.set_trace()
+                # import pdb; pdb.set_trace()
                 self.errors.append("No revison found for %s" % item.target)
                 return
             self.site.api(
@@ -39,6 +39,13 @@ class VersionizeAction(SiteAction):
             if not self.conf.no_doi:
                 doi = self.doihelper.create_chapterdoi(
                     item.stable_link,  item.text, self.book)
+                print("\n\nDOI", doi)
+                self.site.api(
+                    action="setdoi",
+                    doi=doi,
+                    rev=str(rev_id),
+                    token=self.site.get_token(type=None))
+
                 ctxt = (
                     (doistr.format(doi=doi)) +
                     soup.decode(formatter=None).strip())

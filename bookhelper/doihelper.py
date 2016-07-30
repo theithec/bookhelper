@@ -20,6 +20,7 @@ class DoiHelper(object):
 
     @on_no_errors
     def _find_free_doi(self):
+        print("find")
         r = "".join([random.choice(string.ascii_uppercase + string.digits)
                      for _ in range(5)])
         doi = "/".join([self.conf.dc_prefix, self.conf.dc_identifier, r])
@@ -115,7 +116,7 @@ class DoiHelper(object):
         return self.doi
 
     def create_chapterdoi(self, url, title, book):
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         self.doi = self._find_free_doi()
         data = self._get_bookdata(book)
         data['titles'][0]['title'] = title
