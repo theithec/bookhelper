@@ -11,62 +11,79 @@ from . import SiteAction
 
 
 class VersionizeAction(SiteAction):
+    doistr = (
+        '<span class="doi"><code>D.o.i.: [https://doi.org/{doi} {doi}]' +
+        '</code></span>\n\n')
 
+    @on_no_errors
+    def versionize_page(self, item):
+        cpage = self.site.Pages[item.target]
+        try:
+            rev_id = list(cpage.revisions())[0]['revid']
+        except IndexError:
+            # import pdb; pdb.set_trace()
+            self.errors.append("No revison found for %s" % item.target)
+            return
+        self.site.api(
+            revid=rev_id,
+            flag_accuracy=2,
+            action="review",
+            token=self.site.get_token(type=None))
+        item.stable_link = os.path.join(
+            get_siteurl(self.site), 'w',
+            'index.php?title=%s&stableid=%s' % (item.target, rev_id))
+        soup = BeautifulSoup(cpage.text(), 'html.parser')
+        olddoi = soup.find("span", class_="doi")
+        if olddoi:
+            olddoi.extract()
+        doi = None
+        if not self.conf.no_doi:
+            doi = self.safe_doi()
+            ctxt = (
+                (self.doistr.format(doi=doi)) +
+                soup.decode(formatter=None).strip())
+        cpage.save(ctxt)
+        if not self.conf.no_doi:
+            self.doihelper.create_chapterdoi(
+                doi, item.stable_link, item.text, self.book)
+        self.site.api(
+            action="allocdoi",
+            cmd="del",
+            doi=doi,
+            token=self.site.get_token(type=None))
+
+    @on_no_errors
     def versionize_pages(self):
-        doistr = (
-            '<span class="doi"><code>D.o.i.: [https://doi.org/{doi} {doi}]' +
-            '</code></span>\n\n')
         for item in self.book.toc:
-            cpage = self.site.Pages[item.target]
-            try:
-                rev_id = list(cpage.revisions())[0]['revid']
-            except IndexError:
-                # import pdb; pdb.set_trace()
-                self.errors.append("No revison found for %s" % item.target)
-                return
-            self.site.api(
-                revid=rev_id,
-                flag_accuracy=2,
-                action="review",
-                token=self.site.get_token(type=None))
-            item.stable_link = os.path.join(
-                get_siteurl(self.site), 'w',
-                'index.php?title=%s&stableid=%s' % (item.target, rev_id))
-            soup = BeautifulSoup(cpage.text(), 'html.parser')
-            olddoi = soup.find("span", class_="doi")
-            if olddoi:
-                olddoi.extract()
-            if not self.conf.no_doi:
-                doi = self.doihelper.create_chapterdoi(
-                    item.stable_link,  item.text, self.book)
-                print("\n\nDOI", doi)
-                self.site.api(
-                    action="setdoi",
-                    doi=doi,
-                    rev=str(rev_id),
-                    token=self.site.get_token(type=None))
+            self.versionize_page(item)
 
-                ctxt = (
-                    (doistr.format(doi=doi)) +
-                    soup.decode(formatter=None).strip())
-            cpage.save(ctxt)
+    @on_no_errors
+    def safe_doi(self):
+        ''' We need to know the doi for a page before
+        the page page is created.  '''
+
+        doi = self.doihelper.find_free_doi()
+        response = self.site.api(
+            action="allocdoi",
+            cmd="set",
+            doi=doi,
+            token=self.site.get_token(type=None))
+        if int(response['Result']) is not 0:
+            return self.safe_doi()
+        return doi
 
     def versionized_template(self):
-        if self.doihelper:
-            self.book.info['doi'] = self.doihelper.create_bookdoi(
-                self.vfullurl, self.book)
-            self.book.info['version'] = self.conf.version
-            self.book.info['title'] = self.book.book_page.friendly_title
-            t = u"{{Bookinfo\n"
-            info = dict([(k.upper(), v) for k, v in self.book.info.items()])
-            for key in ['ABSTRACT', 'AUTOREN', 'HERAUSGEBER', 'KONTRIBUTOREN',
-                        'STAND', 'DOI', 'VERSION', 'TITLE']:
-                if key in info:
-                    t += u"|%s = %s\n" % (key, info[key])
-            t += "}}\n"
+        self.book.info['version'] = self.conf.version
+        self.book.info['title'] = self.book.book_page.friendly_title
+        t = u"{{Bookinfo\n"
+        info = dict([(k.upper(), v) for k, v in self.book.info.items()])
+        for key in ['ABSTRACT', 'AUTOREN', 'HERAUSGEBER', 'KONTRIBUTOREN',
+                    'STAND', 'DOI', 'VERSION', 'TITLE']:
+            if key in info:
+                t += u"|%s = %s\n" % (key, info[key])
 
+        t += "}}\n"
         return t
-
 
     @on_no_errors
     def versionize_bookpage_text(self):
@@ -79,17 +96,16 @@ class VersionizeAction(SiteAction):
         content = toc.contents[0]
         stable_content = os.linesep
         fstr = '{depth} <span class="plainlinks">[{url} {text}]</span>\n'
-        #import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         for item in self.book.toc:
-            print ("ITEM", item)
             stable_item = fstr.format(
                 depth="#"*item.depth,
                 url=item.stable_link,
-                text = item.text)
+                text=item.text)
             stable_content += stable_item
 
         content.replaceWith(stable_content)
-        txt =  soup.decode(formatter=None)
+        txt = soup.decode(formatter=None)
         self.vbookpage.save(txt)
 
     @on_no_errors
@@ -103,12 +119,13 @@ class VersionizeAction(SiteAction):
         self.vfullurl = get_fullurl(self.site, self.vpagetitle)
         self.versionize_pages()
         self.versionize_bookpage_text()
+        self.doihelper.create_bookdoi(self.vfullurl, self.book)
 
     def run(self):
-        self.doihelper = None
+        self.book = ExistingBook(self.site, self.conf.book, "live")
         if not self.conf.no_doi:
             self.doihelper = doihelper.DoiHelper(self.conf, self.errors)
+            self.book.info['doi'] = self.safe_doi()
 
-        self.book = ExistingBook(self.site, self.conf.book, "live")
         self.errors += self.book.errors
         self.versionize()
