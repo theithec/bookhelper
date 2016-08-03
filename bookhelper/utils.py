@@ -24,7 +24,7 @@ def get_siteurl(site):
 
 def template_from_info(info_):
     t = u"{{Bookinfo\n"
-    info = dict([(k.upper(), v) for k, v in info_])
+    info = dict([(k.upper(), v) for k, v in info_.items()])
     for key in ['ABSTRACT', 'AUTOREN', 'HERAUSGEBER', 'KONTRIBUTOREN',
                 'STAND', 'DOI', 'VERSION', 'TITLE']:
         if key in info:

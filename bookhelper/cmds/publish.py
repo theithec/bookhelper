@@ -7,9 +7,6 @@ class PublishAction(SiteAction):
         self.book = ExistingBook(self.site, self.conf.book, self.conf.version)
 
     def run(self):
-        print("RUN") #pass
-        print ("\n".join([str(t) for t in self.book.toc]))
-        print (self.book.info)
         self.errors += self.book.errors
 
     def validate(self, site=None):

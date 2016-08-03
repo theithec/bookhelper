@@ -91,11 +91,11 @@ class LiveBookTocItem(BaseBookTocItem):
 class Bookinfo(dict):
     pass
     def __get__(self, key):
-        print("GET", key)
+        #print("GET", key)
         super().__get__(key.upper())
 
     def __set__(self, key, val):
-        print("SET", key)
+        #print("SET", key)
         super().__set__(key.upper(), val)
 
     def validation_errors(self):

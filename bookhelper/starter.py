@@ -1,5 +1,4 @@
-from bookhelper.cmds import (
-    publish, status, versionize, create, setup) # , importer, setup)
+from bookhelper.cmds import publish, status, versionize, create, setup, importer
 
 
 class Starter(object):
@@ -9,7 +8,7 @@ class Starter(object):
         "versionize": versionize.VersionizeAction,
         "status": status.StatusAction,
         "create": create.CreateAction,
-        # "import": importer.ImportAction,
+        "import": importer.ImportAction,
         "setup": setup.SetupAction,
     }
 
@@ -35,4 +34,3 @@ class Starter(object):
             action = Action(self.conf)
             self.errors += action.errors
             return action.result
-

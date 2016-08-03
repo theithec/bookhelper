@@ -1,4 +1,3 @@
-
 '''
 Creates a boook from json-data.
 
@@ -15,13 +14,13 @@ generated startpage.
 import os
 import json
 import logging
-from . import Action
+from . import SiteAction
 from bookhelper.utils import template_from_info, on_no_errors
 
 
-class CreateAction(Action):
+class CreateAction(SiteAction):
 
-    def validate(self, site=None):
+    def validate(self):
         jsrc = getattr(self.conf, "json_source", None)
         if not jsrc:
             self.errors.append("No json source")
@@ -84,10 +83,6 @@ class CreateAction(Action):
         txt += "\n[[Kategorie:Buch]]"
         self.save_page(self.title, txt)
 
-    def run(self):
-        self.validate()
-        self.create()
-
     @on_no_errors
     def create(self):
         self.title = self.bookdata['title']
@@ -95,3 +90,10 @@ class CreateAction(Action):
         self.book_page = self.mk_book_page()
         for page in self.pages:
             self.mk_page(page)
+
+    @on_no_errors
+    def run(self):
+        self.validate()
+        self.create()
+
+
