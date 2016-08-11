@@ -43,9 +43,10 @@ class CreateAction(SiteAction):
         page = self.site.Pages[title]
 
         if page.text() and not self.conf.force_overwrite:
-            self.errors.append("Page already exists: %s" % page)
+            self.errors.append("Page already exists: %s" % title)
             return
         page.save(content)
+        return page
 
     def mk_page(self, page):
         txt = "\n%s\n" % page['body']
@@ -81,7 +82,7 @@ class CreateAction(SiteAction):
 
         txt += "\n%s" % self.mk_toc()
         txt += "\n[[Kategorie:Buch]]"
-        self.save_page(self.title, txt)
+        return self.save_page(self.title, txt)
 
     @on_no_errors
     def create(self):

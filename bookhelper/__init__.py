@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from .utils import get_siteurl, on_no_errors
 
 
-EXPORTKEYS = ['odt', 'pdf', 'epub']
+EXPORTKEYS = ['odt', 'pdf', 'epub', 'print']
 
 
 class StablePage(object):
@@ -19,9 +19,10 @@ class StablePage(object):
         self.raw_title = title
         self.friendly_title = title.replace("_", " ")
         _wrapped_page = site.Pages[title]
+        #print("\nWRP", _wrapped_page.text())
         if not _wrapped_page.text():
             self.errors.append(
-                'No Page with this title was found: "%s"' % self.title)
+                'No Page with this title was found: "%s"' % title)
             return
         r = site.api("query", titles=title, prop="flagged")
         pages = r['query']['pages']

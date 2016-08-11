@@ -20,7 +20,9 @@ class SiteAction(Action):
 
     def login(self):
         site_arg = None
-        self.site = None
+        self.site =  getattr(self, "sitemock", None)
+        if self.site:
+            return # test with sitemock
         if self.conf.no_https:
             site_arg = ("http", self.conf.api_url, )
         else:

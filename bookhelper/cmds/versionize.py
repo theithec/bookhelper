@@ -42,15 +42,16 @@ class VersionizeAction(SiteAction):
             ctxt = (
                 (self.doistr.format(doi=doi)) +
                 soup.decode(formatter=None).strip())
-        cpage.save(ctxt)
+            cpage.save(ctxt)
+
         if not self.conf.no_doi:
             self.doihelper.create_chapterdoi(
                 doi, item.stable_link, item.text, self.book)
-        self.site.api(
-            action="allocdoi",
-            cmd="del",
-            doi=doi,
-            token=self.site.get_token(type=None))
+            self.site.api(
+                action="allocdoi",
+                cmd="del",
+                doi=doi,
+                token=self.site.get_token(type=None))
 
     @on_no_errors
     def versionize_pages(self):
@@ -108,18 +109,19 @@ class VersionizeAction(SiteAction):
         txt = soup.decode(formatter=None)
         self.vbookpage.save(txt)
 
-    @on_no_errors
+    #@on_no_errors
     def versionize(self):
         self.vpagetitle = (
             '{0.book.book_page.raw_title}/{0.conf.version}'.format(self))
         self.vbookpage = self.site.Pages[self.vpagetitle]
         if self.vbookpage.text() and not self.conf.force_overwrite:
-            self.errors.append("Page already exists")
+            self.errors.append("Page already exists: %s" % self.vpagetitle)
 
         self.vfullurl = get_fullurl(self.site, self.vpagetitle)
         self.versionize_pages()
         self.versionize_bookpage_text()
-        self.doihelper.create_bookdoi(self.vfullurl, self.book)
+        if not self.conf.no_doi:
+            self.doihelper.create_bookdoi(self.vfullurl, self.book)
 
     def run(self):
         self.book = ExistingBook(self.site, self.conf.book, "live")
@@ -128,4 +130,4 @@ class VersionizeAction(SiteAction):
             self.book.info['doi'] = self.safe_doi()
 
         self.errors += self.book.errors
-        self.versionize()
+        #self.versionize()

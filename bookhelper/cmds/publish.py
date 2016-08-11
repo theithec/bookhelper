@@ -1,13 +1,9 @@
-from bookhelper import export, EXPORTKEYS
+from bookhelper import export, EXPORTKEYS, ExistingBook
 from bookhelper.utils import on_no_errors
 from . import  SiteAction
 
 class PublishAction(SiteAction):
-    def init(self):
-        self.book = ExistingBook(self.site, self.conf.book, self.conf.version)
 
-    def run(self):
-        self.errors += self.book.errors
 
     def validate(self, site=None):
         if self.conf.export == ['all']:
@@ -15,7 +11,10 @@ class PublishAction(SiteAction):
         if not set(self.conf.export).issubset(EXPORTKEYS):
             self.errors.append(
                 "%s is not a subset of %s" % (self.conf.export, EXPORTKEYS))
+        self.book = ExistingBook(self.site, self.conf.book, self.conf.version)
+        self.errors += self.book.errors
 
+    @on_no_errors
     def run(self, site=None):
         self.validate()
         self.export_all()

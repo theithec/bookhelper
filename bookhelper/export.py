@@ -47,7 +47,6 @@ class PRINTExport(Export):
         if not self.overwrite and printpage.text():
             self.errors.append('Page "%s" already exists' % title)
             return
-
         printpage.save(self.src)
 
 
