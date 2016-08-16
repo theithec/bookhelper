@@ -30,7 +30,7 @@ celeryapp = Celery(
 @celeryapp.task
 def async_action(Action, conf):
         action = Action(conf)
-        logging.debug("ER + " + ",".join(action.errors))
+        logging.info("ER + " + ",".join(action.errors))
         if action.errors:
             raise Exception(",".join(action.errors))
 

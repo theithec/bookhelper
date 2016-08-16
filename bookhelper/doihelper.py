@@ -5,6 +5,7 @@ from datetime import datetime
 from jsonschema.exceptions import ValidationError
 from datacite import DataCiteMDSClient, schema31
 from datacite.errors import DataCiteServerError
+from requests import HTTPError
 from bookhelper.utils import on_no_errors
 
 
@@ -16,6 +17,12 @@ class DoiHelper(object):
         self.test_mode = True
         self._create_client()
 
+    def safe_call(self, f, *args):
+        try:
+            f(*args)
+        except Exception as e:
+            self.errors.append("Datacite connection failed")
+
     @on_no_errors
     def _create_client(self):
         datacite_kwargs = {
@@ -26,7 +33,7 @@ class DoiHelper(object):
         try:
             self.client = DataCiteMDSClient(**datacite_kwargs)
         except Exception as e:
-            self.errors.append(str(e))
+            self.errors.append("Datacite connection failed")
 
     @on_no_errors
     def find_free_doi(self):
@@ -34,7 +41,8 @@ class DoiHelper(object):
                      for _ in range(5)])
         doi = "/".join([self.conf.dc_prefix, self.conf.dc_identifier, r])
         try:
-            self.client.metadata_get(doi)
+            self.safe_call(self.client.metadata_get, doi)
+            # self.client.metadata_get(doi)
             return self.find_free_doi()
         except DataCiteServerError as e:
             if e.error_code != 404:
@@ -108,13 +116,16 @@ class DoiHelper(object):
         self._post_doi(doi, url)
 
     @on_no_errors
-    def create_chapterdoi(self, doi, url, title, book):
+    def create_chapterdoi(self, doi, url, title, book, username):
         data = self._get_bookdata(book)
         data['titles'][0]['title'] = title
         data['relatedIdentifiers'] = [{
                'relatedIdentifier': book.info['doi'],
                'relatedIdentifierType': 'DOI',
                'relationType':'IsPartOf'}, ]
+        if username:
+            data['publisher'] = username
+
         self._create_doi(doi, url, data)
 
     @on_no_errors

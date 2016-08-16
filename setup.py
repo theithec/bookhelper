@@ -53,7 +53,7 @@ setup(
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 3',
         # 'Programming Language :: Python :: 3.3',
-        # 'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
 
@@ -73,18 +73,17 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        "beautifulsoup4==4.4.1",
-        "mwclient==0.8.1",
-        "pypandoc==1.1.3",
-        "requests==2.9.1",
-        "six==1.10.0",
-        "SQLAlchemy==1.0.12",
-        "celery==3.1.23",
-        "pypandoc==1.1.3",
+        "beautifulsoup4>=4.4.1",
+        "mwclient>=0.8.1",
+        "pypandoc>=1.1.3",
+        "requests>=2.9.1",
+        "six>=1.10.0",
+        "SQLAlchemy>=1.0.12",
+        "celery>=3.1.23",
         "datacite>=0.2.999",
-        "PyYAML==3.11",
-        "eventlet==0.19.0",
-        "Jinja2==2.8"
+        "PyYAML>=3.11",
+        "eventlet>=0.19.0",
+        "Jinja2>=2.8"
     ],
      dependency_links=[
          "https://github.com/inveniosoftware/datacite/archive/master.zip#egg=datacite-0.2.999",

@@ -39,14 +39,17 @@ class VersionizeAction(SiteAction):
         doi = None
         if not self.conf.no_doi:
             doi = self.safe_doi()
+            print("\ndoi", doi, "\n")
+            if not doi:
+                self.errors.append("Could not create doi")
+                return
             ctxt = (
                 (self.doistr.format(doi=doi)) +
                 soup.decode(formatter=None).strip())
             cpage.save(ctxt)
 
-        if not self.conf.no_doi:
             self.doihelper.create_chapterdoi(
-                doi, item.stable_link, item.text, self.book)
+                doi, item.stable_link, item.text, self.book, self.conf.real_username)
             self.site.api(
                 action="allocdoi",
                 cmd="del",
@@ -64,12 +67,16 @@ class VersionizeAction(SiteAction):
         the page page is created.  '''
 
         doi = self.doihelper.find_free_doi()
+        if not doi:
+            self.errors.append("Could not create doi")
+            return
         response = self.site.api(
             action="allocdoi",
             cmd="set",
             doi=doi,
             token=self.site.get_token(type=None))
         if int(response['Result']) is not 0:
+            #import pdb; pdb.set_trace()
             return self.safe_doi()
         return doi
 
@@ -97,7 +104,6 @@ class VersionizeAction(SiteAction):
         content = toc.contents[0]
         stable_content = os.linesep
         fstr = '{depth} <span class="plainlinks">[{url} {text}]</span>\n'
-        # import pdb; pdb.set_trace()
         for item in self.book.toc:
             stable_item = fstr.format(
                 depth="#"*item.depth,
@@ -107,6 +113,7 @@ class VersionizeAction(SiteAction):
 
         content.replaceWith(stable_content)
         txt = soup.decode(formatter=None)
+        #import pdb; pdb.set_trace()
         self.vbookpage.save(txt)
 
     #@on_no_errors
@@ -130,4 +137,4 @@ class VersionizeAction(SiteAction):
             self.book.info['doi'] = self.safe_doi()
 
         self.errors += self.book.errors
-        #self.versionize()
+        self.versionize()

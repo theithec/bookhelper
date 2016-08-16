@@ -14,6 +14,12 @@ class StatusAction(Action):
     def run(self):
         from bookhelper.celeryapp import celeryapp
         result = celeryapp.AsyncResult(self.conf.task_id)
+        # import pdb; pdb.set_trace()
+        self.errors = []
         if result.state == "FAILURE":
-            return str(result.get(timeout=1, propagate=False))
-        return str(result.state)
+            try:
+                str(result.get(timeout=1, propagate=True))
+            except Exception as e:
+                self.errors.append(str(e))
+        self.result = result.state
+        # return str(result.state)

@@ -97,6 +97,7 @@ def main():
     parser_version.add_argument(*book_args_kwargs[0], **book_args_kwargs[1])
     version_args_kwargs[1]['required'] = True
     parser_version.add_argument(*version_args_kwargs[0], **version_args_kwargs[1])
+    parser_version.add_argument("--real-username", help="The mediawiki user", default="")
     parser_version.add_argument(
         "--no-doi",
         help="No DOI creation",
