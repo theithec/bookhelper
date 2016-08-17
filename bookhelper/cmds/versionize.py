@@ -116,7 +116,7 @@ class VersionizeAction(SiteAction):
         #import pdb; pdb.set_trace()
         self.vbookpage.save(txt)
 
-    #@on_no_errors
+    @on_no_errors
     def versionize(self):
         self.vpagetitle = (
             '{0.book.book_page.raw_title}/{0.conf.version}'.format(self))
@@ -132,9 +132,10 @@ class VersionizeAction(SiteAction):
 
     def run(self):
         self.book = ExistingBook(self.site, self.conf.book, "live")
-        if not self.conf.no_doi:
+        self.errors += self.book.errors
+        if not self.errors and not self.conf.no_doi:
             self.doihelper = doihelper.DoiHelper(self.conf, self.errors)
             self.book.info['doi'] = self.safe_doi()
 
-        self.errors += self.book.errors
+
         self.versionize()

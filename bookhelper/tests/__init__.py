@@ -77,8 +77,10 @@ class PageMock(object):
     def save(self, text, *args, **kwargs):
         self._text = text
         self.site.Pages[self.title] = self
-        if self.title == "Testbook1/0.1":
+        pass # if self.title == "Testbook1/0.1":
+
         self.is_saved = True
+
 
     def __str__(self):
         return self._text

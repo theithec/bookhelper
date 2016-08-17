@@ -21,7 +21,7 @@ class DoiHelper(object):
         try:
             f(*args)
         except Exception as e:
-            self.errors.append("Datacite connection failed")
+            self.errors.append("Datacite1 connection failed")
 
     @on_no_errors
     def _create_client(self):
@@ -30,6 +30,7 @@ class DoiHelper(object):
             'password': self.conf.dc_password,
             'prefix': self.conf.dc_prefix,
             'test_mode': self.test_mode}
+        #self.client = DataCiteMDSClient(**datacite_kwargs)
         try:
             self.client = DataCiteMDSClient(**datacite_kwargs)
         except Exception as e:
@@ -41,8 +42,7 @@ class DoiHelper(object):
                      for _ in range(5)])
         doi = "/".join([self.conf.dc_prefix, self.conf.dc_identifier, r])
         try:
-            self.safe_call(self.client.metadata_get, doi)
-            # self.client.metadata_get(doi)
+            self.client.metadata_get(doi)
             return self.find_free_doi()
         except DataCiteServerError as e:
             if e.error_code != 404:
