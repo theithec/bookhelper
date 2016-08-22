@@ -28,7 +28,8 @@ class CreateAction(SiteAction):
 
         try:
             self.bookdata = json.loads(jsrc)
-        except json.decoder.JSONDecodeError as e:
+        #  except json.decoder.JSONDecodeError as e:
+        except ValueError as e:
             self.errors.append(str(e))
             return
         for key in ('title', 'info', 'pages'):
