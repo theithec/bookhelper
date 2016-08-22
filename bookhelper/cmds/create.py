@@ -59,7 +59,7 @@ class CreateAction(SiteAction):
         for page in self.pages:
             title = page['title']
             toctitle = page.get('toctitle', title)
-            toc += "\n# [[%s|%s]]\n" % (
+            toc += "# [[%s|%s]]\n" % (
                 os.path.join(self.title, title),
                 toctitle)
         toc += "\n</div>\n"
