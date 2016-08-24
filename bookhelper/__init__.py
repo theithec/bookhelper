@@ -10,7 +10,7 @@ EXPORTKEYS = ['odt', 'pdf', 'epub', 'print']
 class StablePage(object):
     '''A wrapper around mwclients `Page`
        One revesion of every (book)-page should be marked as stable.
-       And that revission is to be be used for generating documents/versions.
+       And that revision is to be be used for generating documents/versions.
        However, it's a little bit complicate to receive the stable revision
        via the api. This is what we do here'''
 
@@ -29,6 +29,7 @@ class StablePage(object):
         # pages is a dict with one key: the page_id we don't know yet.
         pid = list(pages.keys())[0]
         try:
+            #import pdb; pdb.set_trace()
             self.stable_id = int(pages[pid]['flagged']['stable_revid'])  # jay!
         except KeyError:
             self.errors.append('No stable revision found for "%s"' % title)
@@ -40,10 +41,13 @@ class StablePage(object):
             prop="content")
         self.text = list(stable_rev)[0]['*']
         site_url = get_siteurl(site)
+        # print ("\nTEXT\n%s\n\n" % self.text)
         self.fullurl = os.path.join(
             site_url, 'w',
             'index.php?title={0.raw_title}&stableid={0.stable_id}'.format(self))
 
+    def __str__(self):
+        return "%s(%s)" % (self.raw_title, self.friendly_title)
 
 class BaseBookTocItem(object):
     '''An item in a book toc'''
@@ -62,12 +66,10 @@ class BaseBookTocItem(object):
             return
         self.text = self.link_parts[
             1 if len(self.link_parts) > 1 else 0].strip()
-        # self.page = StablePage(site, self._title())
         self.is_valid = True
 
     def parse_tocline(self, line):
         match = re.match(self.item_re, line.strip())
-        # logging.debug("MATCH %s %s " % (line, str(match)))
         list_part, link_part = match.groups()
         self.depth = len(list_part)
         self.link_parts = link_part.split('|')
@@ -191,9 +193,9 @@ class ExistingBook(object):
         self.errors += self.info.validation_errors()
 
 
-    def get_pagetext_from_item(self, item):
-        page = StablePage(self.site, item.title())
-        txt = "\n\n=%s=\n\n" % page.friendly_title
+    @on_no_errors
+    def get_pagetext_from_page(self, page):
+        txt = "\n\n=%s=\n\n" % page.friendly_title.replace(self.book_page.friendly_title+"/", "")
         txt += page.text
         txt, numsubs = re.subn(
             "(=+\s*Einzelnachweise?\s*=+|<references\s*\/>)", "", txt)
@@ -202,14 +204,18 @@ class ExistingBook(object):
 
         return txt
 
+    @on_no_errors
     def get_src(self):
         self.found_references = False
         txt = ''
         for item in self.toc:
             if item.depth > 1:
                 continue
-            ptxt = self.get_pagetext_from_item(item)
-            txt += ptxt
+
+            page = StablePage(self.site, item.title())
+            self.errors += page.errors
+            ptxt = self.get_pagetext_from_page(page)
+            txt += ptxt or ''
 
         if self.found_references:
             txt += "= Einzelnachweise =\n<references/>\n\n"

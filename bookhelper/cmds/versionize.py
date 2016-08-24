@@ -39,7 +39,7 @@ class VersionizeAction(SiteAction):
         doi = None
         if not self.conf.no_doi:
             doi = self.safe_doi()
-            print("\ndoi", doi, "\n")
+            # print("\ndoi", doi, "\n")
             if not doi:
                 self.errors.append("Could not create doi")
                 return

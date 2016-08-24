@@ -119,8 +119,8 @@ class PandocExport(Export):
             if c and c.startswith("/"):
                 tag['src'] = "".join((site_url, c),)
 
-        with open(os.path.join(self.tmp_path, "src.html"), "w") as f:
-            f.write(str(soup.prettify().encode("utf-8")))
+        #with open(os.path.join(self.tmp_path, "src.html"), "w") as f:
+        #    f.write(str(soup.prettify().encode("utf-8")))
 
         return soup
 

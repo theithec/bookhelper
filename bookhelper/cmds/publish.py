@@ -2,8 +2,8 @@ from bookhelper import export, EXPORTKEYS, ExistingBook
 from bookhelper.utils import on_no_errors
 from . import  SiteAction
 
-class PublishAction(SiteAction):
 
+class PublishAction(SiteAction):
 
     def validate(self, site=None):
         if self.conf.export == ['all']:
@@ -12,6 +12,8 @@ class PublishAction(SiteAction):
             self.errors.append(
                 "%s is not a subset of %s" % (self.conf.export, EXPORTKEYS))
         self.book = ExistingBook(self.site, self.conf.book, self.conf.version)
+        self.src = self.book.get_src()
+        #import pdb; pdb.set_trace()
         self.errors += self.book.errors
 
     @on_no_errors
@@ -28,7 +30,7 @@ class PublishAction(SiteAction):
             'overwrite': self.conf.force_overwrite or self.conf.version == 'live',
             'title': self.book.book_page.raw_title,
             'friendly_title': self.book.book_page.friendly_title,
-            'src': self.book.get_src(),
+            'src': self.src,
             'info': self.book.info,
             'tmp_path': self.conf.tmp_path,
         }
