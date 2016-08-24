@@ -14,7 +14,7 @@ class DoiHelper(object):
     def __init__(self, conf, errors):
         self.conf = conf
         self.errors = errors
-        self.test_mode = True
+        self.test_mode = False #True
         self._create_client()
 
     def safe_call(self, f, *args):
