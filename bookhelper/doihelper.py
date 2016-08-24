@@ -55,6 +55,7 @@ class DoiHelper(object):
     def _post_metadata(self, metadata):
         logging.debug("METADATA:" + metadata)
         res = self.client.metadata_post(metadata)
+        logging.debug("RES: %s" % res)
         if not res.startswith("OK"):
             self.errors.append(res)
 
@@ -70,8 +71,8 @@ class DoiHelper(object):
                 url = url.replace(testurl, "http://handbuch.io")
 
         if "handbuch.io" in url and not self.test_mode:
-            logging.debug("Post DOI: Doi: %s\t%s" % (self.doi, url))
-            self.client.doi_post(self.doi, url)
+            logging.debug("Post DOI: Doi: %s\t%s" % (doi, url))
+            self.client.doi_post(doi, url)
 
     def _get_creators_list(self, book):
         creators = []
@@ -111,14 +112,16 @@ class DoiHelper(object):
             metadata = schema31.tostring(data)
         except ValidationError as e:
             self.errors.append(str(e))
-
+        #import pdb; pdb.set_trace()
         self._post_metadata(metadata)
         self._post_doi(doi, url)
 
     @on_no_errors
     def create_chapterdoi(self, doi, url, title, book, username):
+        #import pdb; pdb.set_trace()
         data = self._get_bookdata(book)
         data['titles'][0]['title'] = title
+        data['identifier']['identifier'] = doi
         data['relatedIdentifiers'] = [{
                'relatedIdentifier': book.info['doi'],
                'relatedIdentifierType': 'DOI',
