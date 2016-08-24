@@ -62,8 +62,11 @@ class DoiHelper(object):
     @on_no_errors
     def _post_doi(self, doi, url):
         for testurl in [
-            "https://test.osl.tib.eu",
             "https://develop.osl.tib.eu",
+            "https://test.osl.tib.eu",
+            "https://develop.handbuch.tib.eu",
+            "https://test.handbuch.tib.eu",
+            "https://handbuch.tib.eu",
             "https://handbuch.local",
 
         ]:
