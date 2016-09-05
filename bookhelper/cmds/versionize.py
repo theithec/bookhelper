@@ -12,7 +12,7 @@ from . import SiteAction
 
 class VersionizeAction(SiteAction):
     doistr = (
-        '<span class="doi"><code>D.o.i.: [https://doi.org/{doi} {doi}]' +
+        '<span class="doi"><code>Doi: [https://doi.org/{doi} {doi}]' +
         '</code></span>\n\n')
 
     @on_no_errors
@@ -74,7 +74,8 @@ class VersionizeAction(SiteAction):
             action="allocdoi",
             cmd="set",
             doi=doi,
-            token=self.site.get_token(type=None))
+            token=self.site.get_token(type=None)
+        )
         if int(response['Result']) is not 0:
             #import pdb; pdb.set_trace()
             return self.safe_doi()
