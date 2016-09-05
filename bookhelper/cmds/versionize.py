@@ -18,20 +18,6 @@ class VersionizeAction(SiteAction):
     @on_no_errors
     def versionize_page(self, item):
         cpage = self.site.Pages[item.target]
-        try:
-            rev_id = list(cpage.revisions())[0]['revid']
-        except IndexError:
-            # import pdb; pdb.set_trace()
-            self.errors.append("No revison found for %s" % item.target)
-            return
-        self.site.api(
-            revid=rev_id,
-            flag_accuracy=2,
-            action="review",
-            token=self.site.get_token(type=None))
-        item.stable_link = os.path.join(
-            get_siteurl(self.site), 'w',
-            'index.php?title=%s&stableid=%s' % (item.target, rev_id))
         soup = BeautifulSoup(cpage.text(), 'html.parser')
         olddoi = soup.find("span", class_="doi")
         if olddoi:
@@ -47,7 +33,24 @@ class VersionizeAction(SiteAction):
                 (self.doistr.format(doi=doi)) +
                 soup.decode(formatter=None).strip())
             cpage.save(ctxt)
+        try:
+            rev_id = list(cpage.revisions())[0]['revid']
+        except IndexError:
+            # import pdb; pdb.set_trace()
+            self.errors.append("No revison found for %s" % item.target)
+            return
 
+        self.site.api(
+            revid=rev_id,
+            flag_accuracy=2,
+            action="review",
+            token=self.site.get_token(type=None))
+        item.stable_link = os.path.join(
+            get_siteurl(self.site), 'w',
+            'index.php?title=%s&stableid=%s' % (item.target, rev_id))
+
+
+        if not self.conf.no_doi:
             self.doihelper.create_chapterdoi(
                 doi, item.stable_link, item.text, self.book, self.conf.real_username)
             self.site.api(
