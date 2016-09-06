@@ -17,8 +17,7 @@ class VersionizeAction(SiteAction):
 
     @on_no_errors
     def versionize_page(self, item):
-        cpage = self.site.Pages[item.target]
-        soup = BeautifulSoup(cpage.text(), 'html.parser')
+        soup = BeautifulSoup(item.stable_page.text, 'html.parser')
         olddoi = soup.find("span", class_="doi")
         if olddoi:
             olddoi.extract()
@@ -32,27 +31,19 @@ class VersionizeAction(SiteAction):
             ctxt = (
                 (self.doistr.format(doi=doi)) +
                 soup.decode(formatter=None).strip())
-            cpage.save(ctxt)
-        try:
-            rev_id = list(cpage.revisions())[0]['revid']
-        except IndexError:
-            # import pdb; pdb.set_trace()
-            self.errors.append("No revison found for %s" % item.target)
-            return
+            item.stable_page.wrapped_page.save(ctxt)
 
-        self.site.api(
-            revid=rev_id,
-            flag_accuracy=2,
-            action="review",
-            token=self.site.get_token(type=None))
-        item.stable_link = os.path.join(
-            get_siteurl(self.site), 'w',
-            'index.php?title=%s&stableid=%s' % (item.target, rev_id))
+            self.site.api(
+                revid=rev_id,
+                flag_accuracy=2,
+                action="review",
+                token=self.site.get_token(type=None))
+            item.stable_page = StablePage(item.stable_page.site, item.raw_title)
 
 
         if not self.conf.no_doi:
             self.doihelper.create_chapterdoi(
-                doi, item.stable_link, item.text, self.book, self.conf.real_username)
+                doi, item.stable_page.full_url, item.text, self.book, self.conf.real_username)
             self.site.api(
                 action="allocdoi",
                 cmd="del",
@@ -111,7 +102,7 @@ class VersionizeAction(SiteAction):
         for item in self.book.toc:
             stable_item = fstr.format(
                 depth="#"*item.depth,
-                url=item.stable_link,
+                url=item.stable_page.fullurl,
                 text=item.text)
             stable_content += stable_item
 
@@ -140,6 +131,5 @@ class VersionizeAction(SiteAction):
         if not self.errors and not self.conf.no_doi:
             self.doihelper = doihelper.DoiHelper(self.conf, self.errors)
             self.book.info['doi'] = self.safe_doi()
-
 
         self.versionize()

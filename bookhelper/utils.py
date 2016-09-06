@@ -4,6 +4,8 @@ def on_no_errors(meth):
     def inner(*args, **kwargs):
         if not args[0].errors:
             return meth(*args, **kwargs)
+        # else:
+        #     raise(Exception(",".join(args[0].errors)))
 
     return inner
 

@@ -8,51 +8,60 @@ EXPORTKEYS = ['odt', 'pdf', 'epub', 'print']
 
 
 class StablePage(object):
-    '''A wrapper around mwclients `Page`
-       One revesion of every (book)-page should be marked as stable.
-       And that revision is to be be used for generating documents/versions.
-       However, it's a little bit complicate to receive the stable revision
-       via the api. This is what we do here'''
+    '''A wrapper around mwclients `Page` to make sure the latest revision
+       is also the stable one'''
 
     def __init__(self, site, title):
-        self.errors = []
+        self.site = site
         self.raw_title = title
+        self.errors = []
         self.friendly_title = title.replace("_", " ")
-        _wrapped_page = site.Pages[title]
-        #print("\nWRP", _wrapped_page.text())
-        if not _wrapped_page.text():
+        self.wrapped_page = site.Pages[title]
+        self.text = self.wrapped_page.text()
+        if not self.text:
             self.errors.append(
                 'No Page with this title was found: "%s"' % title)
-            return
-        r = site.api("query", titles=title, prop="flagged")
-        pages = r['query']['pages']
-        # pages is a dict with one key: the page_id we don't know yet.
-        pid = list(pages.keys())[0]
-        try:
-            #import pdb; pdb.set_trace()
-            self.stable_id = int(pages[pid]['flagged']['stable_revid'])  # jay!
-        except KeyError:
-            self.errors.append('No stable revision found for "%s"' % title)
-            return
-        stable_rev = _wrapped_page.revisions(
-            startid=self.stable_id,
-            endid=self.stable_id,
-            expandtemplates=False,
-            prop="content")
-        self.text = list(stable_rev)[0]['*']
-        site_url = get_siteurl(site)
-        # print ("\nTEXT\n%s\n\n" % self.text)
+        self.find_stable_id()
+        self.compare_stable_and_current()
+        self.build_fullurl()
+
+    @on_no_errors
+    def build_fullurl(self):
+        site_url = get_siteurl(self.site)
         self.fullurl = os.path.join(
             site_url, 'w',
             'index.php?title={0.raw_title}&stableid={0.stable_id}'.format(self))
 
+    @on_no_errors
+    def compare_stable_and_current(self):
+        latest_rev_id = list(self.wrapped_page.revisions())[0]['revid']
+        print("TT", self.raw_title, latest_rev_id, self.stable_id)
+        # import pdb; pdb.set_trace()
+        if self.stable_id !=  latest_rev_id:
+            self.errors.append(
+                'The stable revision for "%s" is outdated' % self.raw_title)
+
+
+
+    def find_stable_id(self):
+        r = self.site.api("query", titles=self.raw_title, prop="flagged")
+        pages = r['query']['pages']
+        # pages is a dict with one key: the page_id we don't know yet.
+        pid = list(pages.keys())[0]
+        try:
+            self.stable_id = int(pages[pid]['flagged']['stable_revid'])  # jay!
+        except KeyError:
+            self.errors.append(
+                'No stable revision found for "%s"' % self.raw_title)
+
     def __str__(self):
         return "%s(%s)" % (self.raw_title, self.friendly_title)
+
 
 class BaseBookTocItem(object):
     '''An item in a book toc'''
 
-    def __init__(self, line):
+    def __init__(self, site, line):
         '''expects line to be a wikitext list item with a link'''
         self.is_valid = False
         self.errors = []
@@ -67,6 +76,8 @@ class BaseBookTocItem(object):
         self.text = self.link_parts[
             1 if len(self.link_parts) > 1 else 0].strip()
         self.is_valid = True
+        self.stable_page = StablePage(site, self.title())
+        self.errors += self.stable_page.errors
 
     def parse_tocline(self, line):
         match = re.match(self.item_re, line.strip())
@@ -76,6 +87,7 @@ class BaseBookTocItem(object):
 
     def __str__(self):
         return str(self.__dict__)
+
 
 class VersionizedBookTocItem(BaseBookTocItem):
     item_re = re.compile(r'((?:#|\*)+).*\[(.*)\]')
@@ -91,21 +103,18 @@ class LiveBookTocItem(BaseBookTocItem):
     def title(self):
         return self.target
 
-class Bookinfo(dict):
-    pass
-    def __get__(self, key):
-        #print("GET", key)
-        super().__get__(key.upper())
 
-    def __set__(self, key, val):
-        #print("SET", key)
-        super().__set__(key.upper(), val)
+class Bookinfo(dict):
+    def __getitem__(self, key):
+        super().__getitem__(key.upper())
+
+    def __setitem__(self, key, val):
+        super().__setitem__(key.upper(), val)
 
     def validation_errors(self):
         errors = []
         if not "AUTOREN" in self or "HERAUSGEBER" in self:
             errors.append("AUTOREN oder HERAUSGEBER notwendig")
-
         return errors
 
 
@@ -137,7 +146,6 @@ class ExistingBook(object):
 
     @on_no_errors
     def parse_toc(self):
-        #import pdb; pdb.set_trace()
         soup = BeautifulSoup(self.book_page.text, 'html.parser')
         try:
             toctext = soup.find_all("div", class_="BookTOC")[0].text.strip()
@@ -153,7 +161,8 @@ class ExistingBook(object):
             if not line:
                 continue
 
-            item = BookTocItemClz(line)
+            item = BookTocItemClz(self.site, line)
+            self.errors += item.errors
             if item.is_valid:
                 self.toc.append(item)
 
@@ -186,12 +195,8 @@ class ExistingBook(object):
         if not d:
             self.errors.append(
                 'No template found for "%s"' % self.book_page.friendly_title)
-        else:
-            #if not any(map(lambda k: d.get(k, None), ["AUTOREN"
-            pass
         self.info = d
         self.errors += self.info.validation_errors()
-
 
     @on_no_errors
     def get_pagetext_from_page(self, page):
@@ -212,9 +217,7 @@ class ExistingBook(object):
             if item.depth > 1:
                 continue
 
-            page = StablePage(self.site, item.title())
-            self.errors += page.errors
-            ptxt = self.get_pagetext_from_page(page)
+            ptxt = self.get_pagetext_from_page(item.stable_page)
             txt += ptxt or ''
 
         if self.found_references:

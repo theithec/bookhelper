@@ -80,9 +80,7 @@ class TestActions(TestCase):
 ==Inhaltsverzeichnis==
 
 <div class="BookTOC">
-
 # [[Importbook/Page1|Page1]]
-
 # [[Importbook/Page2|Page2]]
 
 </div>
